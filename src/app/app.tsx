@@ -1,13 +1,13 @@
-import React from "react";
+import { Typography } from "@mui/material";
 
 export function AppShell() {
    return (
       <main style={{ padding: 24 }}>
-         <h1>boarding-student-app</h1>
-         <p>
+         <Typography variant="h1" >boarding-student-app</Typography>
+         <Typography variant="body1">
             Feature-first structure scaffolded. Start building pages inside
             src/features.
-         </p>
+         </Typography>
       </main>
    );
 }
