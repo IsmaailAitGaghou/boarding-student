@@ -1,0 +1,10 @@
+mkdir src/app
+    touch src/app/app.tsx
+    touch src/app/router.tsx
+    touch src/app/providers.tsx
+    touch src/app/theme.ts
+mkdir src/shared
+    mkdir src/shared/components
+    mkdir src/shared/layouts
+    mkdir src/shared/utils
+    mkdir src/shared/ui
