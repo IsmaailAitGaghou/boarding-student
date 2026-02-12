@@ -38,9 +38,9 @@ export const tokens = {
       muted: "#6B7280",
     },
 
-    success: "#16A34A",
-    warning: "#D97706",
-    error: "#DC2626",
+    success: "#0C7779",
+    warning: "#fa7b41",
+    error: "#f02929",
     info: "#2563EB",
   },
 
