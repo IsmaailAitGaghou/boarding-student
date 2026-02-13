@@ -106,15 +106,15 @@ export function createAppMuiTheme(mode: ThemeMode = defaultTheme.mode) {
     },
     typography: {
       fontFamily:
-        'Montserrat, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
-      h1: { fontFamily: 'Satoshi, Montserrat, sans-serif', ...tokens.typography.h1 },
-      h2: { fontFamily: 'Satoshi, Montserrat, sans-serif', ...tokens.typography.h2 },
-      h3: { fontFamily: 'Satoshi, Montserrat, sans-serif', ...tokens.typography.h3 },
+        'Public Sans, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+      h1: { fontFamily: 'Satoshi, Public Sans, sans-serif', ...tokens.typography.h1 },
+      h2: { fontFamily: 'Satoshi, Public Sans, sans-serif', ...tokens.typography.h2 },
+      h3: { fontFamily: 'Satoshi, Public Sans, sans-serif', ...tokens.typography.h3 },
       body1: tokens.typography.body,
       body2: tokens.typography.bodySmall,
       caption: tokens.typography.caption,
       button: {
-        fontFamily: 'Satoshi, Montserrat, sans-serif',
+        fontFamily: 'Satoshi, Public Sans, sans-serif',
         ...tokens.typography.button,
         textTransform: "unset",
       },

@@ -25,9 +25,9 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 
 import { tokens } from "@/app/theme";
+import { useAuth } from "@/contexts/auth-context";
 
 import { AuthLayout } from "../components";
-import { login } from "../api";
 
 type FormState = {
    email: string;
@@ -40,6 +40,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function LoginPage() {
    const navigate = useNavigate();
    const [searchParams] = useSearchParams();
+   const { login } = useAuth();
 
    const initialState = useMemo<FormState>(
       () => ({
@@ -82,15 +83,13 @@ export function LoginPage() {
 
       try {
          setSubmitting(true);
-         const res = await login({
+         await login({
             email: values.email,
             password: values.password,
             rememberMe: values.rememberMe,
          });
-         setSuccess(`Welcome back, ${res.user.fullName}.`);
-         // Next step will be routing to dashboard when implemented.
-         // For now, return home.
-         setTimeout(() => navigate("/"), 600);
+         setSuccess(`Welcome back!`);
+         setTimeout(() => navigate("/dashboard"), 600);
       } catch (e) {
          setError(
             e instanceof Error

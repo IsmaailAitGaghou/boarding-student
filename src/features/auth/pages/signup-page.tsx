@@ -23,9 +23,9 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 
 import { tokens } from "@/app/theme";
+import { useAuth } from "@/contexts/auth-context";
 
 import { AuthLayout } from "../components";
-import { signup } from "../api";
 
 type FormState = {
    fullName: string;
@@ -63,6 +63,7 @@ function passwordStrength(pw: string) {
 
 export function SignupPage() {
    const navigate = useNavigate();
+   const { signup } = useAuth();
 
    const initialState = useMemo<FormState>(
       () => ({
@@ -129,12 +130,12 @@ export function SignupPage() {
 
       try {
          setSubmitting(true);
-         const res = await signup({
+         await signup({
             fullName: values.fullName,
             email: values.email,
             password: values.password,
          });
-         setSuccess(`Account created. Welcome, ${res.user.fullName}.`);
+         setSuccess(`Account created. Welcome.`);
          setTimeout(
             () => navigate(`/login?email=${encodeURIComponent(values.email)}`),
             800,

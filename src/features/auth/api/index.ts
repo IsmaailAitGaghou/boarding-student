@@ -50,5 +50,5 @@ export async function login(req: LoginRequest): Promise<LoginResponse> {
 export async function signup(req: SignupRequest): Promise<SignupResponse> {
 	if (isMock()) return mockSignup(req);
 	const api = createApiClient({ baseUrl: "" });
-	return api.request<SignupResponse>("/auth/signup", { method: "POST", json: req });
+	return api.request<SignupResponse>(endpoints.auth.signup, { method: "POST", json: req });
 }

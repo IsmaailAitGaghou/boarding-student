@@ -2,6 +2,7 @@ import React from "react";
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { createAppMuiTheme, defaultTheme } from "./theme";
+import { AuthProvider } from "@/contexts/auth-context";
 
 export type AppProvidersProps = {
    children: React.ReactNode;
@@ -13,7 +14,7 @@ export function AppProviders({ children }: AppProvidersProps) {
    return (
       <ThemeProvider theme={theme}>
          <CssBaseline />
-         {children}
+         <AuthProvider>{children}</AuthProvider>
       </ThemeProvider>
    );
 }

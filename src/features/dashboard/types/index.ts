@@ -1,0 +1,48 @@
+export type DashboardStats = {
+	applications: {
+		total: number;
+		change: number;
+		trend: "up" | "down";
+	};
+	appointments: {
+		total: number;
+		change: number;
+		trend: "up" | "down";
+	};
+	messages: {
+		unread: number;
+		change: number;
+		trend: "up" | "down";
+	};
+	progress: {
+		percentage: number;
+		change: number;
+		trend: "up" | "down";
+	};
+};
+
+export type ActivityItem = {
+	id: string;
+	type: "match" | "appointment" | "milestone" | "message";
+	title: string;
+	description: string;
+	timestamp: Date;
+	icon?: string;
+};
+
+export type UpcomingAppointment = {
+	id: string;
+	advisorName: string;
+	advisorAvatar?: string;
+	purpose: string;
+	date: Date;
+	duration: number; // minutes
+	meetingLink?: string;
+};
+
+export type JourneyStage = {
+	id: string;
+	label: string;
+	completed: boolean;
+	current: boolean;
+};
