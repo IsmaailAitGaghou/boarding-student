@@ -1,29 +1,29 @@
 import { useEffect, useState } from "react";
-import { Box, Grid, Typography, CircularProgress, Alert } from "@mui/material";
+import { Box, Typography, CircularProgress, Alert } from "@mui/material";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 
 import { tokens } from "@/app/theme";
 import { useAuth } from "@/contexts/auth-context";
 import {
    getDashboardStats,
-   getRecentActivity,
    getUpcomingAppointments,
    getJourneyProgress,
+   getProfileCompletion,
+   getRecommendedMatches,
 } from "../api";
 import { StatsCard } from "../components/stats-card";
-// import { QuickActions } from "../components/quick-actions";
-import { ActivityTimeline } from "../components/activity-timeline";
-import { AppointmentsWidget } from "../components/appointments-widget";
 import { JourneyProgress } from "../components/journey-progress";
+import { ProfileCompletion } from "../components/profile-completion";
+import { NextAppointment } from "../components/next-appointment";
+import { RecommendedMatches } from "../components/recommended-matches";
 
 import type {
    DashboardStats,
-   ActivityItem,
    UpcomingAppointment,
    JourneyStage,
+   RecommendedMatch,
 } from "../types";
 
 export function DashboardPage() {
@@ -33,9 +33,10 @@ export function DashboardPage() {
    const [error, setError] = useState<string | null>(null);
 
    const [stats, setStats] = useState<DashboardStats | null>(null);
-   const [activities, setActivities] = useState<ActivityItem[]>([]);
    const [appointments, setAppointments] = useState<UpcomingAppointment[]>([]);
    const [journey, setJourney] = useState<JourneyStage[]>([]);
+   const [profileCompletion, setProfileCompletion] = useState<number>(0);
+   const [matches, setMatches] = useState<RecommendedMatch[]>([]);
 
    useEffect(() => {
       const loadDashboardData = async () => {
@@ -43,18 +44,25 @@ export function DashboardPage() {
             setLoading(true);
             setError(null);
 
-            const [statsData, activitiesData, appointmentsData, journeyData] =
-               await Promise.all([
-                  getDashboardStats(),
-                  getRecentActivity(),
-                  getUpcomingAppointments(),
-                  getJourneyProgress(),
-               ]);
+            const [
+               statsData,
+               appointmentsData,
+               journeyData,
+               profileData,
+               matchesData,
+            ] = await Promise.all([
+               getDashboardStats(),
+               getUpcomingAppointments(),
+               getJourneyProgress(),
+               getProfileCompletion(),
+               getRecommendedMatches(),
+            ]);
 
             setStats(statsData);
-            setActivities(activitiesData);
             setAppointments(appointmentsData);
             setJourney(journeyData);
+            setProfileCompletion(profileData);
+            setMatches(matchesData);
          } catch (e) {
             setError(
                e instanceof Error
@@ -93,7 +101,7 @@ export function DashboardPage() {
    }
 
    return (
-      <Box sx={{ p: 4 }}>
+      <Box sx={{ p: 3 }}>
          {/* Header */}
          <Box sx={{ mb: 4 }}>
             <Typography variant="h2" sx={{ fontWeight: 800, mb: 0.5 }}>
@@ -104,11 +112,14 @@ export function DashboardPage() {
             </Typography>
          </Box>
 
-         <Grid container spacing={3}>
-            {/* Stats Cards */}
+         {/* Profile Completion - Only shows if not 100% */}
+         <ProfileCompletion percentage={profileCompletion} />
+
+         {/* Stats Cards Row - 3 Cards Side by Side */}
+         <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
             {stats && (
                <>
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ flex: "1 1 300px", minWidth: 0 }}>
                      <StatsCard
                         title="Applications"
                         value={stats.applications.total}
@@ -116,9 +127,10 @@ export function DashboardPage() {
                         trend={stats.applications.trend}
                         icon={<AssignmentOutlinedIcon />}
                         color={tokens.color.primary[700]}
+                        chartData={[10, 41, 35, 51, 49, 62, 69, 91, 148]}
                      />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
+                  </Box>
+                  <Box sx={{ flex: "1 1 300px", minWidth: 0 }}>
                      <StatsCard
                         title="Appointments"
                         value={stats.appointments.total}
@@ -126,54 +138,40 @@ export function DashboardPage() {
                         trend={stats.appointments.trend}
                         icon={<CalendarTodayOutlinedIcon />}
                         color={tokens.color.info}
+                        chartData={[22, 8, 35, 50, 82, 84, 77, 12, 87]}
                      />
-                  </Grid>
-                  {/* <Grid item xs={12} sm={6} md={3}>
-							<StatsCard
-								title="Unread Messages"
-								value={stats.messages.unread}
-								change={stats.messages.change}
-								trend={stats.messages.trend}
-								icon={<MailOutlineIcon />}
-								color={tokens.color.warning}
-							/>
-						</Grid> */}
-                  <Grid item xs={6} sm={6} md={3}>
+                  </Box>
+                  <Box sx={{ flex: "1 1 300px", minWidth: 0 }}>
                      <StatsCard
-                        title="Journey Progress"
+                        title="Journey progress"
                         value={`${stats.progress.percentage}%`}
                         change={stats.progress.change}
                         trend={stats.progress.trend}
                         icon={<TimelineOutlinedIcon />}
                         color={tokens.color.success}
+                        chartData={[20, 41, 63, 33, 28, 35, 50, 46, 11]}
                      />
-                  </Grid>
+                  </Box>
                </>
             )}
-         </Grid>
-         <Grid container spacing={3}>
-            {/* Quick Actions + Journey Progress */}
-            {/* <Grid item xs={12} md={4}>
-					<QuickActions />
-				</Grid> */}
-            <Grid item xs={12} md={8}>
+         </Box>
+
+         {/* Your Journey Progress and Upcoming Appointments Row */}
+         <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
+            <Box sx={{ flex: "2 1 600px", minWidth: 0 }}>
                {journey.length > 0 && <JourneyProgress stages={journey} />}
-            </Grid>
+            </Box>
+            <Box sx={{ flex: "1 1 300px", minWidth: 0 }}>
+               <NextAppointment appointment={appointments[0] || null} />
+            </Box>
+         </Box>
 
-            {/* Activity Timeline */}
-            <Grid item xs={12} md={7}>
-               {activities.length > 0 && (
-                  <ActivityTimeline activities={activities} />
-               )}
-            </Grid>
-
-            {/* Upcoming Appointments */}
-            <Grid item xs={12} md={5}>
-               {appointments.length > 0 && (
-                  <AppointmentsWidget appointments={appointments} />
-               )}
-            </Grid>
-         </Grid>
+         {/* Recommended Matches - Full Width */}
+         {matches.length > 0 && (
+            <Box sx={{ mb: 3 }}>
+               <RecommendedMatches matches={matches} />
+            </Box>
+         )}
       </Box>
    );
 }

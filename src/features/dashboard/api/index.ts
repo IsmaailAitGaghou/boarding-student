@@ -4,6 +4,7 @@ import type {
 	ActivityItem,
 	UpcomingAppointment,
 	JourneyStage,
+	RecommendedMatch,
 } from "../types";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -168,5 +169,62 @@ export async function getJourneyProgress(): Promise<JourneyStage[]> {
 	if (isMock()) return mockGetJourneyProgress();
 	// TODO: Real API call
 	throw new Error("Real API not implemented");
-    
+}
+
+const mockGetProfileCompletion = async (): Promise<number> => {
+	await sleep(300);
+	return 75; // 75% completed - change to 100 to hide the widget
+};
+
+export async function getProfileCompletion(): Promise<number> {
+	if (isMock()) return mockGetProfileCompletion();
+	// TODO: Real API call
+	throw new Error("Real API not implemented");
+}
+
+const mockGetRecommendedMatches = async (): Promise<RecommendedMatch[]> => {
+	await sleep(500);
+	return [
+		{
+			id: "1",
+			companyName: "TechCorp Solutions",
+			position: "Software Engineer Intern",
+			matchPercentage: 92,
+			location: "San Francisco, CA",
+		},
+		{
+			id: "2",
+			companyName: "InnovateLabs",
+			position: "Product Designer",
+			matchPercentage: 88,
+			location: "New York, NY",
+		},
+		{
+			id: "3",
+			companyName: "DataDrive Inc",
+			position: "Data Analyst",
+			matchPercentage: 85,
+			location: "Austin, TX",
+		},
+		{
+			id: "4",
+			companyName: "CloudScale",
+			position: "DevOps Engineer",
+			matchPercentage: 78,
+			location: "Seattle, WA",
+		},
+		{
+			id: "5",
+			companyName: "AI Ventures",
+			position: "Machine Learning Intern",
+			matchPercentage: 72,
+			location: "Boston, MA",
+		},
+	];
+};
+
+export async function getRecommendedMatches(): Promise<RecommendedMatch[]> {
+	if (isMock()) return mockGetRecommendedMatches();
+	// TODO: Real API call
+	throw new Error("Real API not implemented");
 }

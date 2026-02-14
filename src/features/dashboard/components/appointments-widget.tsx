@@ -11,7 +11,7 @@ import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import { tokens } from "@/app/theme";
 import type { UpcomingAppointment } from "../types";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 type AppointmentsWidgetProps = {
    appointments: UpcomingAppointment[];

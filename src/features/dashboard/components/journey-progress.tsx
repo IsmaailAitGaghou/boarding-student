@@ -9,17 +9,20 @@ import {
    stepConnectorClasses,
    styled,
    Box,
+   Button,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { tokens } from "@/app/theme";
+import { useNavigate } from "react-router-dom";
 import type { JourneyStage } from "../types";
 
 type JourneyProgressProps = {
    stages: JourneyStage[];
 };
 
-const CustomConnector = styled(StepConnector)(({ theme }) => ({
+const CustomConnector = styled(StepConnector)(() => ({
    [`&.${stepConnectorClasses.alternativeLabel}`]: {
       top: 10,
       left: "calc(-50% + 12px)",
@@ -40,6 +43,9 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
 }));
 
 export function JourneyProgress({ stages }: JourneyProgressProps) {
+
+   const navigate = useNavigate();
+
    const activeStep = stages.findIndex((stage) => stage.current);
    const completedCount = stages.filter((stage) => stage.completed).length;
    const progressPercentage = Math.round(
@@ -49,7 +55,7 @@ export function JourneyProgress({ stages }: JourneyProgressProps) {
    return (
       <Card
          sx={{
-            p: 3,
+            p: 4,
             height: "100%",
             borderRadius: 2,
             boxShadow: "none",
@@ -57,15 +63,42 @@ export function JourneyProgress({ stages }: JourneyProgressProps) {
          }}
       >
          <Stack spacing={3}>
-            <Box>
-               <Typography variant="h3" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  Your Journey Progress
-               </Typography>
-               <Typography variant="body2" color="text.secondary">
-                  {completedCount} of {stages.length} stages completed (
-                  {progressPercentage}
-                  %)
-               </Typography>
+            <Box
+               sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+               }}
+            >
+               <Box>
+                  <Typography variant="h3" sx={{ fontWeight: 700}}>
+                     Your Journey Progress
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                     {completedCount} of {stages.length} stages completed (
+                     {progressPercentage}
+                     %)
+                  </Typography>
+               </Box>
+
+               <Button
+                  size="small"
+                  endIcon={<ArrowForwardIcon />}
+                  onClick={() => {
+                     navigate("/journey");
+                  }}
+                  sx={{
+                     p: 2,
+                     borderColor: tokens.color.border,
+                     color: tokens.color.text.primary,
+                     "&:hover": {
+                        borderColor: tokens.color.primary[700],
+                        backgroundColor: tokens.color.primary[300] + "10",
+                     },
+                  }}
+               >
+                  View Roadmap
+               </Button>
             </Box>
 
             <Stepper

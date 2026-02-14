@@ -3,8 +3,8 @@ import {
    useContext,
    useState,
    useEffect,
-   ReactNode,
 } from "react";
+import type { ReactNode } from "react";
 import type { LoginRequest, SignupRequest, User } from "@/features/auth/types";
 import { login as apiLogin, signup as apiSignup } from "@/features/auth/api";
 

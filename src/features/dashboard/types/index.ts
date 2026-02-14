@@ -46,3 +46,12 @@ export type JourneyStage = {
 	completed: boolean;
 	current: boolean;
 };
+
+export type RecommendedMatch = {
+	id: string;
+	companyName: string;
+	position: string;
+	matchPercentage: number;
+	location: string;
+	logo?: string;
+};
