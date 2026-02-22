@@ -3,9 +3,10 @@ import {
    useContext,
    useState,
    useEffect,
+   type ReactNode,
 } from "react";
-import type { ReactNode } from "react";
-import type { LoginRequest, SignupRequest, User } from "@/features/auth/types";
+import type { LoginRequest, SignupRequest } from "@/features/auth/types";
+import type { User } from "@/types/models";
 import { login as apiLogin, signup as apiSignup } from "@/features/auth/api";
 
 type AuthState = {

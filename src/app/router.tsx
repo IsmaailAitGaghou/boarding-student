@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { LoginPage, SignupPage } from "@/features/auth";
 import { DashboardPage } from "@/features/dashboard";
+import { ProfilePage } from "@/features/profile";
 import { ProtectedRoute } from "@/shared/components/protected-route";
 import { DashboardLayout } from "@/shared/layouts/dashboard-layout";
 import { Box, Typography } from "@mui/material";
@@ -36,7 +37,7 @@ export const router = createBrowserRouter([
       children: [
          { index: true, element: <Navigate to="/dashboard" replace /> },
          { path: "dashboard", element: <DashboardPage /> },
-         { path: "profile", element: <PlaceholderPage title="Profile" /> },
+         { path: "profile", element: <ProfilePage /> },
          { path: "cv", element: <PlaceholderPage title="CV Management" /> },
          {
             path: "journey",

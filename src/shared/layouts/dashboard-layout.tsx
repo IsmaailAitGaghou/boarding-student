@@ -20,6 +20,7 @@ import {
    InputBase,
    alpha,
    Stack,
+   Tooltip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
@@ -27,13 +28,15 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 import { useAuth } from "@/contexts/auth-context";
 import { tokens } from "@/app/theme";
 import { navConfig } from "./nav-config";
 
 const DRAWER_WIDTH = 280;
+const DRAWER_WIDTH_COLLAPSED = 72;
 const APPBAR_HEIGHT = 64;
 
 export function DashboardLayout() {
@@ -42,11 +45,16 @@ export function DashboardLayout() {
    const { user, logout } = useAuth();
 
    const [mobileOpen, setMobileOpen] = useState(false);
+   const [sidebarOpen, setSidebarOpen] = useState(true);
    const [userMenuAnchor, setUserMenuAnchor] =
       useState<null | HTMLElement>(null);
 
    const handleDrawerToggle = () => {
       setMobileOpen(!mobileOpen);
+   };
+
+   const handleSidebarToggle = () => {
+      setSidebarOpen(!sidebarOpen);
    };
 
    const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -63,32 +71,54 @@ export function DashboardLayout() {
       handleUserMenuClose();
    };
 
-   const drawer = (
+   const currentDrawerWidth = sidebarOpen
+      ? DRAWER_WIDTH
+      : DRAWER_WIDTH_COLLAPSED;
+
+   const drawer = (isCollapsed: boolean) => (
       <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
          {/* Logo */}
          <Box
             sx={{
-               p: 3,
+               p: 1.1,
                display: "flex",
                alignItems: "center",
+               justifyContent: isCollapsed ? "center" : "space-between",
                gap: 1.5,
+               minHeight: 64,
+               position: "relative",
             }}
          >
-            <Box
+            {isCollapsed ? (
+               <img src="./logo2.png" alt="Logo" width={40} height={40} />
+            ) : (
+               <img src="./logo.png" alt="Logo" width={150} />
+            )}
+
+            {/* Collapse Toggle Button - Desktop Only */}
+            <IconButton
+               onClick={handleSidebarToggle}
+               size="small"
                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 1.5,
-                  background: `linear-gradient(135deg, ${tokens.color.primary[700]} 0%, ${tokens.color.primary[500]} 100%)`,
-                  display: "grid",
-                  placeItems: "center",
+                  display: { xs: "none", md: "flex" },
+                  position: "absolute",
+                  right: -10,
+                  zIndex: 9999,
+                  top: 15,
+                  color: "text.secondary",
+                  width: 28,
+                  height: 28,
+                  "&:hover": {
+                     backgroundColor: alpha(tokens.color.text.secondary, 0.08),
+                  },
                }}
             >
-               <SchoolOutlinedIcon sx={{ color: "white", fontSize: 24 }} />
-            </Box>
-            <Typography variant="h3" sx={{ fontWeight: 800 }}>
-               Boarding
-            </Typography>
+               {sidebarOpen ? (
+                  <ChevronLeftIcon sx={{ fontSize: 20 }} />
+               ) : (
+                  <ChevronRightIcon sx={{ fontSize: 20 }} />
+               )}
+            </IconButton>
          </Box>
 
          <Divider />
@@ -97,39 +127,40 @@ export function DashboardLayout() {
          <List sx={{ flex: 1, px: 2, py: 1 }}>
             {navConfig.map((item) => {
                const isActive = location.pathname === item.path;
-               return (
-                  <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
-                     <ListItemButton
-                        onClick={() => {
-                           navigate(item.path);
-                           setMobileOpen(false);
-                        }}
-                        sx={{
-                           borderRadius: 1.5,
-                           py: 1.25,
-                           px: 2,
+               const navButton = (
+                  <ListItemButton
+                     onClick={() => {
+                        navigate(item.path);
+                        setMobileOpen(false);
+                     }}
+                     sx={{
+                        borderRadius: 1.5,
+                        py: 1.25,
+                        px: isCollapsed ? 1 : 2,
+                        justifyContent: isCollapsed ? "center" : "flex-start",
+                        backgroundColor: isActive
+                           ? alpha(tokens.color.primary[700], 0.08)
+                           : "transparent",
+                        color: isActive
+                           ? tokens.color.primary[700]
+                           : tokens.color.text.secondary,
+                        fontWeight: isActive ? 600 : 400,
+                        "&:hover": {
                            backgroundColor: isActive
-                              ? alpha(tokens.color.primary[700], 0.08)
-                              : "transparent",
-                           color: isActive
-                              ? tokens.color.primary[700]
-                              : tokens.color.text.secondary,
-                           fontWeight: isActive ? 600 : 400,
-                           "&:hover": {
-                              backgroundColor: isActive
-                                 ? alpha(tokens.color.primary[700], 0.12)
-                                 : alpha(tokens.color.text.secondary, 0.04),
-                           },
+                              ? alpha(tokens.color.primary[700], 0.12)
+                              : alpha(tokens.color.text.secondary, 0.04),
+                        },
+                     }}
+                  >
+                     <ListItemIcon
+                        sx={{
+                           minWidth: isCollapsed ? "unset" : 40,
+                           color: "inherit",
                         }}
                      >
-                        <ListItemIcon
-                           sx={{
-                              minWidth: 40,
-                              color: "inherit",
-                           }}
-                        >
-                           {item.icon}
-                        </ListItemIcon>
+                        {item.icon}
+                     </ListItemIcon>
+                     {!isCollapsed && (
                         <ListItemText
                            primary={item.title}
                            primaryTypographyProps={{
@@ -137,7 +168,19 @@ export function DashboardLayout() {
                               fontWeight: "inherit",
                            }}
                         />
-                     </ListItemButton>
+                     )}
+                  </ListItemButton>
+               );
+
+               return (
+                  <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                     {isCollapsed ? (
+                        <Tooltip title={item.title} placement="right" arrow>
+                           {navButton}
+                        </Tooltip>
+                     ) : (
+                        navButton
+                     )}
                   </ListItem>
                );
             })}
@@ -151,6 +194,7 @@ export function DashboardLayout() {
                sx={{
                   display: "flex",
                   alignItems: "center",
+                  justifyContent: isCollapsed ? "center" : "flex-start",
                   gap: 1.5,
                   p: 1.5,
                   borderRadius: 1.5,
@@ -168,23 +212,25 @@ export function DashboardLayout() {
                >
                   {user?.fullName.charAt(0) || "U"}
                </Avatar>
-               <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography
-                     variant="body2"
-                     sx={{ fontWeight: 600, fontSize: "0.8125rem" }}
-                     noWrap
-                  >
-                     {user?.fullName || "User"}
-                  </Typography>
-                  <Typography
-                     variant="caption"
-                     color="text.secondary"
-                     sx={{ fontSize: "0.6875rem" }}
-                     noWrap
-                  >
-                     {user?.email || "user@example.com"}
-                  </Typography>
-               </Box>
+               {!isCollapsed && (
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                     <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 600, fontSize: "0.8125rem" }}
+                        noWrap
+                     >
+                        {user?.fullName || "User"}
+                     </Typography>
+                     <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontSize: "0.6875rem" }}
+                        noWrap
+                     >
+                        {user?.email || "user@example.com"}
+                     </Typography>
+                  </Box>
+               )}
             </Box>
          </Box>
       </Box>
@@ -197,11 +243,13 @@ export function DashboardLayout() {
             position="fixed"
             elevation={0}
             sx={{
-               width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
-               ml: { md: `${DRAWER_WIDTH}px` },
+               width: { md: `calc(100% - ${currentDrawerWidth}px)` },
+               ml: { md: `${currentDrawerWidth}px` },
                backgroundColor: "background.paper",
                borderBottom: `1px solid ${tokens.color.border}`,
                height: APPBAR_HEIGHT,
+               transition:
+                  "width 225ms cubic-bezier(0.4, 0, 0.6, 1), margin 225ms cubic-bezier(0.4, 0, 0.6, 1)",
             }}
          >
             <Toolbar sx={{ height: APPBAR_HEIGHT }}>
@@ -220,15 +268,28 @@ export function DashboardLayout() {
                      position: "relative",
                      borderRadius: 2,
                      backgroundColor: alpha(tokens.color.text.secondary, 0.04),
-                     "&:hover": {
+                     mr: 2,
+
+                     // collapsed by default
+                     width: 44,
+                     overflow: "hidden",
+                     display: { xs: "none", sm: "block" },
+
+                     transition:
+                        "width 220ms ease, background-color 220ms ease",
+
+                     // expand on hover OR while typing (focused)
+                     "&:hover, &:focus-within": {
+                        width: 300,
                         backgroundColor: alpha(
                            tokens.color.text.secondary,
                            0.06,
                         ),
+                        "& .searchInput": {
+                           opacity: 1,
+                           pointerEvents: "auto",
+                        },
                      },
-                     mr: 2,
-                     width: { xs: "auto", sm: 300 },
-                     display: { xs: "none", sm: "block" },
                   }}
                >
                   <Box
@@ -240,22 +301,31 @@ export function DashboardLayout() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        zIndex: 1,
                      }}
                   >
                      <SearchIcon
                         sx={{ color: "text.secondary", fontSize: 20 }}
                      />
                   </Box>
+
                   <InputBase
                      placeholder="Search…"
+                     className="searchInput"
                      sx={{
                         width: "100%",
+                        color: "text.primary",
+
+                        // hidden unless hover/focus-within
+                        opacity: 0,
+                        pointerEvents: "none",
+                        transition: "opacity 160ms ease",
+
                         "& .MuiInputBase-input": {
                            padding: "8px 8px 8px 0",
                            paddingLeft: "calc(1em + 32px)",
                            fontSize: "0.875rem",
                         },
-                        color: "text.primary",
                      }}
                   />
                </Box>
@@ -356,7 +426,11 @@ export function DashboardLayout() {
          {/* Drawer */}
          <Box
             component="nav"
-            sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
+            sx={{
+               width: { md: currentDrawerWidth },
+               flexShrink: { md: 0 },
+               transition: "width 225ms cubic-bezier(0.4, 0, 0.6, 1)",
+            }}
          >
             {/* Mobile drawer */}
             <Drawer
@@ -373,7 +447,7 @@ export function DashboardLayout() {
                   },
                }}
             >
-               {drawer}
+               {drawer(false)}
             </Drawer>
 
             {/* Desktop drawer */}
@@ -383,13 +457,15 @@ export function DashboardLayout() {
                   display: { xs: "none", md: "block" },
                   "& .MuiDrawer-paper": {
                      boxSizing: "border-box",
-                     width: DRAWER_WIDTH,
+                     width: currentDrawerWidth,
                      borderRight: `1px solid ${tokens.color.border}`,
+                     transition: "width 225ms cubic-bezier(0.4, 0, 0.6, 1)",
+                     overflowX: "hidden",
                   },
                }}
                open
             >
-               {drawer}
+               {drawer(!sidebarOpen)}
             </Drawer>
          </Box>
 
@@ -399,12 +475,16 @@ export function DashboardLayout() {
             sx={{
                flexGrow: 1,
                p: 3,
-               width: { xs: "100%", md: `calc(100% - ${DRAWER_WIDTH}px)` },
+               width: {
+                  xs: "100%",
+                  md: `calc(100% - ${currentDrawerWidth}px)`,
+               },
                mt: `${APPBAR_HEIGHT}px`,
                minHeight: `calc(100vh - ${APPBAR_HEIGHT}px)`,
                backgroundColor: tokens.color.background,
                maxWidth: 1200,
                mx: "auto",
+               transition: "width 225ms cubic-bezier(0.4, 0, 0.6, 1)",
             }}
          >
             <Outlet />

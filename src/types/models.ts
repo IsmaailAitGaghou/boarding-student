@@ -1,5 +1,27 @@
 export type User = { id: string; fullName: string; email: string };
 
+export type Education = {
+  id: string;
+  school: string;
+  degree: string;
+  fieldOfStudy: string;
+  startDate: string;
+  endDate?: string;
+  current: boolean;
+  description?: string;
+};
+
+export type Experience = {
+  id: string;
+  company: string;
+  position: string;
+  location?: string;
+  startDate: string;
+  endDate?: string;
+  current: boolean;
+  description?: string;
+};
+
 export type StudentProfile = {
   id: string;
   fullName: string;
@@ -9,6 +31,8 @@ export type StudentProfile = {
   country?: string;
   skills: string[];
   languages: string[];
+  education: Education[];
+  experience: Experience[];
   preferences?: { location?: string; internshipType?: string };
   updatedAt: string;
 };

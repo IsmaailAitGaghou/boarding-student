@@ -1,5 +1,7 @@
 import type { User } from "@/types/models";
 
+export type { User };
+
 export type LoginRequest = {
 	email: string;
 	password: string;

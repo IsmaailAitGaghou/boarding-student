@@ -30,7 +30,6 @@ export function AuthLayout({
             backgroundColor: "background.default",
          }}
       >
-         {/* Left panel (hidden on mobile) */}
          <Box
             sx={{
                display: { xs: "none", md: "block" },
