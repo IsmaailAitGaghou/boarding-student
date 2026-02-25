@@ -1,4 +1,6 @@
 import { isMock } from "@/api/env";
+import { getJourneyProgress as getJourneyProgressFromJourney } from "@/features/journey/api";
+import { getProfile, calculateProfileCompletion } from "@/features/profile/api";
 import type {
 	DashboardStats,
 	ActivityItem,
@@ -106,45 +108,8 @@ const mockGetUpcomingAppointments = async (): Promise<UpcomingAppointment[]> => 
 };
 
 const mockGetJourneyProgress = async (): Promise<JourneyStage[]> => {
-	await sleep(350);
-	return [
-		{
-			id: "1",
-			label: "Profile Setup",
-			completed: true,
-			current: false,
-		},
-		{
-			id: "2",
-			label: "CV Upload",
-			completed: true,
-			current: false,
-		},
-		{
-			id: "3",
-			label: "Company Matching",
-			completed: true,
-			current: false,
-		},
-		{
-			id: "4",
-			label: "Applications",
-			completed: false,
-			current: true,
-		},
-		{
-			id: "5",
-			label: "Interviews",
-			completed: false,
-			current: false,
-		},
-		{
-			id: "6",
-			label: "Placement",
-			completed: false,
-			current: false,
-		},
-	];
+	
+	return getJourneyProgressFromJourney();
 };
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -172,8 +137,10 @@ export async function getJourneyProgress(): Promise<JourneyStage[]> {
 }
 
 const mockGetProfileCompletion = async (): Promise<number> => {
-	await sleep(300);
-	return 75; // 75% completed - change to 100 to hide the widget
+	// Delegated to profile feature — single source of truth.
+	// Uses the same calculateProfileCompletion logic as the Profile page.
+	const profile = await getProfile();
+	return calculateProfileCompletion(profile);
 };
 
 export async function getProfileCompletion(): Promise<number> {

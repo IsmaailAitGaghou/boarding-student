@@ -43,25 +43,7 @@ const mockProfileData: StudentProfile = {
 		},
 	],
 	experience: [
-		{
-			id: "exp-1",
-			company: "Tech Startup Inc.",
-			position: "Software Engineering Intern",
-			location: "San Francisco, CA",
-			startDate: "2024-06",
-			endDate: "2024-08",
-			current: false,
-			description: "Developed React components and REST APIs. Collaborated with cross-functional teams to deliver features.",
-		},
-		{
-			id: "exp-2",
-			company: "University IT Department",
-			position: "Student Developer",
-			location: "Campus",
-			startDate: "2023-01",
-			current: true,
-			description: "Maintaining university web applications and providing technical support to students and faculty.",
-		},
+		
 	],
 	preferences: {
 		location: "San Francisco, CA",

@@ -3,6 +3,9 @@ import { LoginPage, SignupPage } from "@/features/auth";
 import { DashboardPage } from "@/features/dashboard";
 import { ProfilePage } from "@/features/profile";
 import { CvPage } from "@/features/cv";
+import { JourneyPage } from "@/features/journey";
+import { MatchingPage } from "@/features/matching";
+import { AppointmentsPage } from "@/features/appointments";
 import { ProtectedRoute } from "@/shared/components/protected-route";
 import { DashboardLayout } from "@/shared/layouts/dashboard-layout";
 import { Box, Typography } from "@mui/material";
@@ -40,17 +43,14 @@ export const router = createBrowserRouter([
          { path: "dashboard", element: <DashboardPage /> },
          { path: "profile", element: <ProfilePage /> },
          { path: "cv", element: <CvPage /> },
-         {
-            path: "journey",
-            element: <PlaceholderPage title="Journey Tracking" />,
-         },
+         { path: "journey", element: <JourneyPage /> },
          {
             path: "matching",
-            element: <PlaceholderPage title="Company Matching" />,
+            element: <MatchingPage />,
          },
          {
             path: "appointments",
-            element: <PlaceholderPage title="Appointments" />,
+            element: <AppointmentsPage />,
          },
          { path: "messaging", element: <PlaceholderPage title="Messaging" /> },
          { path: "resources", element: <PlaceholderPage title="Resources" /> },

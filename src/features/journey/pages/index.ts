@@ -1,1 +1,1 @@
-export {};
+export { JourneyPage } from "./journey-page";

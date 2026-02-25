@@ -1,1 +1,1 @@
-export {};
+export { MatchingPage } from "./matching-page";
