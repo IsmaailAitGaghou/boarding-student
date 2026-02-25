@@ -1,1 +1,2 @@
-export {};
+export { MessagingPage } from "./messaging-page";
+

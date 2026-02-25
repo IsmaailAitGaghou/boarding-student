@@ -81,7 +81,7 @@ export function JourneyPage() {
       .slice(0, 3);
 
    return (
-      <Box sx={{  mx: "auto" }}>
+      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: "auto" }}>
          {/* Page header */}
          <Box
             sx={{
@@ -107,18 +107,17 @@ export function JourneyPage() {
             {summary.currentStep && (
                <Button
                   size="small"
-                        variant="contained"
-                        endIcon={<ArrowForwardIcon />}
-                        onClick={scrollToCurrentStep}
-                        sx={{
-                           backgroundColor: tokens.color.primary[700],
-                           fontWeight: 600,
-                           px: 3,
-                           "&:hover": {
-                              backgroundColor: tokens.color.primary[900],
-                           },
-                        }}
-                  
+                  variant="contained"
+                  endIcon={<ArrowForwardIcon />}
+                  onClick={scrollToCurrentStep}
+                  sx={{
+                     backgroundColor: tokens.color.primary[700],
+                     fontWeight: 600,
+                     px: 3,
+                     "&:hover": {
+                        backgroundColor: tokens.color.primary[900],
+                     },
+                  }}
                >
                   Go to current step
                </Button>

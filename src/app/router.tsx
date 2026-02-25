@@ -6,6 +6,7 @@ import { CvPage } from "@/features/cv";
 import { JourneyPage } from "@/features/journey";
 import { MatchingPage } from "@/features/matching";
 import { AppointmentsPage } from "@/features/appointments";
+import { MessagingPage } from "@/features/messaging";
 import { ProtectedRoute } from "@/shared/components/protected-route";
 import { DashboardLayout } from "@/shared/layouts/dashboard-layout";
 import { Box, Typography } from "@mui/material";
@@ -52,7 +53,7 @@ export const router = createBrowserRouter([
             path: "appointments",
             element: <AppointmentsPage />,
          },
-         { path: "messaging", element: <PlaceholderPage title="Messaging" /> },
+         { path: "messaging", element: <MessagingPage /> },
          { path: "resources", element: <PlaceholderPage title="Resources" /> },
       ],
    },

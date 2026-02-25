@@ -134,9 +134,9 @@ export function AppointmentsPage() {
       }
    }
 
-   // ── Render ─────────────────────────────────────────────────────────────────
+   
    return (
-      <Box sx={{ p: { xs: 2, sm: 3 }, mx: "auto" }}>
+      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: "auto" }}>
          {/* Page header */}
          <Box
             sx={{

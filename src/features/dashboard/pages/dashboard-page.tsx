@@ -101,7 +101,7 @@ export function DashboardPage() {
    }
 
    return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
          {/* Header */}
          <Box sx={{ mb: 4 }}>
             <Typography variant="h2" sx={{ fontWeight: 800, mb: 0.5 }}>
