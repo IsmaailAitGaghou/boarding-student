@@ -6,3 +6,4 @@ export * from './appointments';
 export * from './messaging';
 export * from './journey';
 export * from './resources';
+export * from './notifications';

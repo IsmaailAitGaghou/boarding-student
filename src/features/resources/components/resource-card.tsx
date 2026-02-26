@@ -56,7 +56,7 @@ export function ResourceCard({
          sx={{
             border: `1px solid ${tokens.color.border}`,
             borderRadius: `${tokens.radius.card}px`,
-            backgroundColor: "#fff",
+            backgroundColor: tokens.color.surface,
             boxShadow: "none",
             p: 2.5,
             display: "flex",
@@ -64,7 +64,7 @@ export function ResourceCard({
             gap: 1.5,
             transition: "border-color 0.15s, box-shadow 0.15s",
             "&:hover": {
-               borderColor: tokens.color.primary[300],
+               borderColor: alpha(tokens.color.primary[300], 0.3),
                boxShadow: tokens.shadow.sm,
             },
          }}

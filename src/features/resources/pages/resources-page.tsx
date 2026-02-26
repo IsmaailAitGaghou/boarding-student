@@ -135,7 +135,7 @@ export function ResourcesPage() {
    return (
       <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: "auto" }}>
          {/* Page header */}
-         <Box sx={{ mb: 3, position: "sticky", top: 90 }}>
+         <Box sx={{ mb: 3 }}>
             <Typography
                variant="h5"
                sx={{

@@ -8,7 +8,7 @@ import type {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// ─── Mock advisors ────────────────────────────────────────────────────────────
+
 export const mockAdvisors: Advisor[] = [
    { id: "adv-1", name: "Sophie Martin",   role: "Career Advisor",      avatarInitials: "SM" },
    { id: "adv-2", name: "James Okafor",    role: "Academic Advisor",    avatarInitials: "JO" },
@@ -16,7 +16,7 @@ export const mockAdvisors: Advisor[] = [
    { id: "adv-4", name: "Carlos Reyes",    role: "Placement Advisor",   avatarInitials: "CR" },
 ];
 
-// ─── Mock appointments (in-memory mutable state) ─────────────────────────────
+
 const _base: Omit<Appointment, "id" | "createdAt">[] = [
    {
       advisorId: "adv-1",
@@ -114,7 +114,7 @@ const mockAppointmentsState: Appointment[] = _base.map((a, i) => ({
 
 let _nextId = mockAppointmentsState.length + 1;
 
-// ─── Mock time slots ──────────────────────────────────────────────────────────
+
 const ALL_SLOTS = [
    "09:00", "09:30", "10:00", "10:30",
    "11:00", "11:30", "13:00", "13:30",
@@ -122,7 +122,7 @@ const ALL_SLOTS = [
    "16:00",
 ];
 
-// ─── API functions ─────────────────────────────────────────────────────────────
+
 
 export async function getAppointments(): Promise<Appointment[]> {
    if (isMock()) {
@@ -214,7 +214,7 @@ export async function cancelAppointment(id: string): Promise<Appointment> {
    throw new Error("Real API not implemented");
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers 
 
 export function getAdvisors(): Advisor[] {
    return [...mockAdvisors];

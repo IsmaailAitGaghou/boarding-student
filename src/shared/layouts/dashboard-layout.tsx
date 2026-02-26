@@ -34,6 +34,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useAuth } from "@/contexts/auth-context";
 import { tokens } from "@/app/theme";
 import { navConfig } from "./nav-config";
+import { NotificationsPanel } from "@/features/notifications/components/notifications-panel";
 
 const DRAWER_WIDTH = 280;
 const DRAWER_WIDTH_COLLAPSED = 72;
@@ -48,6 +49,8 @@ export function DashboardLayout() {
    const [sidebarOpen, setSidebarOpen] = useState(true);
    const [userMenuAnchor, setUserMenuAnchor] =
       useState<null | HTMLElement>(null);
+   const [notifAnchor, setNotifAnchor] = useState<null | HTMLElement>(null);
+   const [unreadCount, setUnreadCount] = useState(4); // optimistic initial from mock
 
    const handleDrawerToggle = () => {
       setMobileOpen(!mobileOpen);
@@ -102,10 +105,11 @@ export function DashboardLayout() {
                sx={{
                   display: { xs: "none", md: "flex" },
                   position: "absolute",
-                  right: -10,
-                  zIndex: 9999,
-                  top: 15,
+                  right: -5,
+                  zIndex: 1,
+                  top: 50,
                   color: "text.secondary",
+                  backgroundColor: alpha(tokens.color.text.secondary, 0.04),
                   width: 28,
                   height: 28,
                   "&:hover": {
@@ -269,8 +273,6 @@ export function DashboardLayout() {
                      borderRadius: 2,
                      backgroundColor: alpha(tokens.color.text.secondary, 0.04),
                      mr: 2,
-
-                     // collapsed by default
                      width: 44,
                      overflow: "hidden",
                      display: { xs: "none", sm: "block" },
@@ -278,7 +280,6 @@ export function DashboardLayout() {
                      transition:
                         "width 220ms ease, background-color 220ms ease",
 
-                     // expand on hover OR while typing (focused)
                      "&:hover, &:focus-within": {
                         width: 300,
                         backgroundColor: alpha(
@@ -316,7 +317,6 @@ export function DashboardLayout() {
                         width: "100%",
                         color: "text.primary",
 
-                        // hidden unless hover/focus-within
                         opacity: 0,
                         pointerEvents: "none",
                         transition: "opacity 160ms ease",
@@ -334,8 +334,12 @@ export function DashboardLayout() {
 
                {/* Right side icons */}
                <Stack direction="row" spacing={1}>
-                  <IconButton size="small" sx={{ color: "text.primary" }}>
-                     <Badge badgeContent={3} color="error">
+                  <IconButton
+                     size="small"
+                     sx={{ color: "text.primary" }}
+                     onClick={(e) => setNotifAnchor(e.currentTarget)}
+                  >
+                     <Badge badgeContent={unreadCount} color="error" max={99}>
                         <NotificationsOutlinedIcon fontSize="small" />
                      </Badge>
                   </IconButton>
@@ -422,6 +426,14 @@ export function DashboardLayout() {
                </Menu>
             </Toolbar>
          </AppBar>
+
+         {/* Notifications panel */}
+         <NotificationsPanel
+            anchorEl={notifAnchor}
+            open={Boolean(notifAnchor)}
+            onClose={() => setNotifAnchor(null)}
+            onUnreadCountChange={setUnreadCount}
+         />
 
          {/* Drawer */}
          <Box

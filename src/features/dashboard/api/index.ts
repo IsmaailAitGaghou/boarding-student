@@ -1,6 +1,12 @@
 import { isMock } from "@/api/env";
 import { getJourneyProgress as getJourneyProgressFromJourney } from "@/features/journey/api";
 import { getProfile, calculateProfileCompletion } from "@/features/profile/api";
+import {
+	getAppointments,
+} from "@/features/appointments/api";
+import {
+	getMatches,
+} from "@/features/matching/api";
 import type {
 	DashboardStats,
 	ActivityItem,
@@ -8,6 +14,8 @@ import type {
 	JourneyStage,
 	RecommendedMatch,
 } from "../types";
+import type { Appointment } from "@/features/appointments/types";
+import type { Match } from "@/features/matching/types";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -79,32 +87,25 @@ const mockGetRecentActivity = async (): Promise<ActivityItem[]> => {
 };
 
 const mockGetUpcomingAppointments = async (): Promise<UpcomingAppointment[]> => {
-	await sleep(450);
-	return [
-		{
-			id: "1",
-			advisorName: "Dr. Emily Thompson",
-			purpose: "Career Strategy Session",
-			date: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
-			duration: 45,
-			meetingLink: "https://meet.example.com/abc123",
-		},
-		{
-			id: "2",
-			advisorName: "Michael Chen",
-			purpose: "CV Review & Optimization",
-			date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
-			duration: 30,
-		},
-		{
-			id: "3",
-			advisorName: "Dr. Sarah Williams",
-			purpose: "Interview Preparation",
-			date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week
-			duration: 60,
-			meetingLink: "https://meet.example.com/xyz789",
-		},
-	];
+	// Delegate to the appointments feature — single source of truth.
+	const all: Appointment[] = await getAppointments();
+	const now = new Date();
+
+	return all
+		.filter((a) => a.status === "Scheduled" && new Date(a.dateTime) > now)
+		.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+		.slice(0, 3)
+		.map((a) => ({
+			id: a.id,
+			advisorName: a.advisorName,
+			advisorRole: a.advisorRole,
+			purpose: a.advisorRole,
+			date: new Date(a.dateTime),
+			duration: a.duration,
+			meetingLink: a.type === "Online" ? a.locationOrLink : undefined,
+			locationOrLink: a.locationOrLink,
+			type: a.type,
+		}));
 };
 
 const mockGetJourneyProgress = async (): Promise<JourneyStage[]> => {
@@ -150,44 +151,32 @@ export async function getProfileCompletion(): Promise<number> {
 }
 
 const mockGetRecommendedMatches = async (): Promise<RecommendedMatch[]> => {
-	await sleep(500);
-	return [
-		{
-			id: "1",
-			companyName: "TechCorp Solutions",
-			position: "Software Engineer Intern",
-			matchPercentage: 92,
-			location: "San Francisco, CA",
-		},
-		{
-			id: "2",
-			companyName: "InnovateLabs",
-			position: "Product Designer",
-			matchPercentage: 88,
-			location: "New York, NY",
-		},
-		{
-			id: "3",
-			companyName: "DataDrive Inc",
-			position: "Data Analyst",
-			matchPercentage: 85,
-			location: "Austin, TX",
-		},
-		{
-			id: "4",
-			companyName: "CloudScale",
-			position: "DevOps Engineer",
-			matchPercentage: 78,
-			location: "Seattle, WA",
-		},
-		{
-			id: "5",
-			companyName: "AI Ventures",
-			position: "Machine Learning Intern",
-			matchPercentage: 72,
-			location: "Boston, MA",
-		},
-	];
+	// Delegate to the matching feature — single source of truth.
+	const all: Match[] = await getMatches({
+		search: "",
+		location: "",
+		industry: "",
+		type: "",
+		minScore: 0,
+		status: "all",
+		sort: "score",
+	});
+
+	return all
+		.filter((m) => !m.applied)
+		.sort((a, b) => b.matchScore - a.matchScore)
+		.slice(0, 5)
+		.map((m) => ({
+			id: m.id,
+			companyName: m.companyName,
+			position: m.role,
+			matchPercentage: m.matchScore,
+			location: m.location,
+			type: m.type,
+			tags: m.tags,
+			saved: m.saved,
+			status: m.status,
+		}));
 };
 
 export async function getRecommendedMatches(): Promise<RecommendedMatch[]> {

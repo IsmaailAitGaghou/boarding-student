@@ -1,172 +1,300 @@
 import {
-   Card,
    Box,
    Typography,
-   Table,
-   TableBody,
-   TableCell,
-   TableContainer,
-   TableHead,
-   TableRow,
-   Chip,
    Avatar,
    Button,
+   Chip,
+   Divider,
+   alpha,
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import { useNavigate } from "react-router-dom";
 import { tokens } from "@/app/theme";
-
-
-type Match = {
-   id: string;
-   companyName: string;
-   position: string;
-   matchPercentage: number;
-   location: string;
-   logo?: string;
-};
+import { getScoreColor } from "@/features/matching/api";
+import type { RecommendedMatch } from "../types";
 
 type RecommendedMatchesProps = {
-   matches: Match[];
+   matches: RecommendedMatch[];
 };
 
 export function RecommendedMatches({ matches }: RecommendedMatchesProps) {
-    const navigate = useNavigate();
-   if (!matches || matches.length === 0) {
-      return null;
-   }
+   const navigate = useNavigate();
+
+   if (!matches || matches.length === 0) return null;
 
    return (
-      <Card
+      <Box
          sx={{
-            p: 4,
-            borderRadius: 2,
-            boxShadow: "none",
             border: `1px solid ${tokens.color.border}`,
+            borderRadius: `${tokens.radius.card}px`,
+            backgroundColor: tokens.color.surface,
+            p: 2.5,
+            transition: "border-color 0.15s, box-shadow 0.15s",
+            "&:hover": {
+               border: `1px solid ${alpha(tokens.color.primary[300], 0.3)}`,
+                              boxShadow: tokens.shadow.sm,
+            },
          }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-         <Typography variant="h3" sx={{ fontWeight: 700 }}>
-            Recommended Matches
-         </Typography>
-         <Button
-            size="small"
-            endIcon={<ArrowForwardIcon />}
-            onClick={
-                () => {
-                    navigate("/matching");
-                }
-            }
+         {/* Header */}
+         <Box
             sx={{
-               p: 2,
-               borderColor: tokens.color.border,
-               color: tokens.color.text.primary,
-               "&:hover": {
-                  borderColor: tokens.color.primary[700],
-                  backgroundColor: tokens.color.primary[300] + "10",
-               },
+               display: "flex",
+               alignItems: "center",
+               justifyContent: "space-between",
+               mb: 2,
             }}
          >
-            View All
-         </Button>
+            <Typography
+               variant="h3"
+               sx={{ fontWeight: 700, color: tokens.color.text.primary }}
+            >
+               Recommended Matches
+            </Typography>
+            <Button
+               size="small"
+               endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
+               onClick={() => navigate("/matching")}
+               sx={{
+                  textTransform: "none",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  color: tokens.color.primary[700],
+                  px: 1,
+                  minWidth: 0,
+                  "&:hover": {
+                     backgroundColor: alpha(tokens.color.primary[700], 0.06),
+                  },
+               }}
+            >
+               View all
+            </Button>
          </Box>
-         <TableContainer>
-            <Table>
-               <TableHead sx={{ backgroundColor: tokens.color.background }}>
-                  <TableRow>
-                     <TableCell
-                        sx={{ fontWeight: 600, color: tokens.color.text.muted }}
-                     >
-                        Company
-                     </TableCell>
-                     <TableCell
-                        sx={{ fontWeight: 600, color: tokens.color.text.muted }}
-                     >
-                        Position
-                     </TableCell>
-                     <TableCell
-                        sx={{ fontWeight: 600, color: tokens.color.text.muted }}
-                     >
-                        Match
-                     </TableCell>
-                     <TableCell
-                        sx={{ fontWeight: 600, color: tokens.color.text.muted }}
-                     >
-                        Location
-                     </TableCell>
-                  </TableRow>
-               </TableHead>
-               <TableBody>
-                  {matches.map((match) => (
-                     <TableRow
-                        key={match.id}
+
+         {/* Match rows */}
+         <Box sx={{ display: "flex", flexDirection: "column" }}>
+            {matches.map((match, idx) => {
+               const scoreColor = getScoreColor(match.matchPercentage);
+
+               return (
+                  <Box key={match.id}>
+                     <Box
+                        onClick={() => navigate("/matching")}
                         sx={{
-                           "&:last-child td, &:last-child th": { border: 0 },
+                           py: 1.5,
+                           display: "flex",
+                           gap: 1.5,
+                           alignItems: "flex-start",
+                           cursor: "pointer",
+                           borderRadius: `${tokens.radius.control}px`,
+                           px: 1,
+                           mx: -1,
+                           transition: "background-color 0.15s",
                            "&:hover": {
-                              backgroundColor: tokens.color.background,
-                              cursor: "pointer",
+                              backgroundColor: alpha(
+                                 tokens.color.primary[700],
+                                 0.03,
+                              ),
                            },
                         }}
                      >
-                        <TableCell>
+                        {/* Avatar */}
+                        <Avatar
+                           sx={{
+                              width: 40,
+                              height: 40,
+                              backgroundColor: alpha(
+                                 tokens.color.primary[700],
+                                 0.12,
+                              ),
+                              color: tokens.color.primary[700],
+                              fontSize: "1rem",
+                              fontWeight: 700,
+                              borderRadius: `${tokens.radius.control}px`,
+                              flexShrink: 0,
+                           }}
+                        >
+                           {match.companyName.charAt(0)}
+                        </Avatar>
+
+                        {/* Content */}
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                           {/* Role + score */}
+                           <Box
+                              sx={{
+                                 display: "flex",
+                                 alignItems: "flex-start",
+                                 justifyContent: "space-between",
+                                 gap: 1,
+                                 mb: 0.25,
+                              }}
+                           >
+                              <Typography
+                                 variant="body2"
+                                 sx={{
+                                    fontWeight: 700,
+                                    color: tokens.color.text.primary,
+                                    lineHeight: 1.3,
+                                 }}
+                              >
+                                 {match.position}
+                              </Typography>
+                              {/* Score badge */}
+                              <Box
+                                 sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
+                                    flexShrink: 0,
+                                    backgroundColor: alpha(scoreColor, 0.1),
+                                    border: `1px solid ${alpha(
+                                       scoreColor,
+                                       0.25,
+                                    )}`,
+                                    borderRadius: "6px",
+                                    px: 0.75,
+                                    py: 0.25,
+                                 }}
+                              >
+                                 <Typography
+                                    variant="caption"
+                                    sx={{
+                                       fontWeight: 800,
+                                       fontSize: "0.75rem",
+                                       color: scoreColor,
+                                       lineHeight: 1,
+                                    }}
+                                 >
+                                    {match.matchPercentage}%
+                                 </Typography>
+                              </Box>
+                           </Box>
+
+                           {/* Company name */}
+                           <Typography
+                              variant="caption"
+                              sx={{
+                                 color: tokens.color.text.secondary,
+                                 fontWeight: 500,
+                                 fontSize: "0.75rem",
+                                 display: "block",
+                                 mb: 0.5,
+                              }}
+                           >
+                              {match.companyName}
+                           </Typography>
+
+                           {/* Meta row: location + type */}
                            <Box
                               sx={{
                                  display: "flex",
                                  alignItems: "center",
-                                 gap: 2,
+                                 gap: 1.5,
+                                 flexWrap: "wrap",
                               }}
                            >
-                              <Avatar
-                                 src={match.logo}
-                                 alt={match.companyName}
-                                 sx={{ width: 32, height: 32 }}
+                              <Box
+                                 sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
+                                 }}
                               >
-                                 {match.companyName.charAt(0)}
-                              </Avatar>
-                              <Typography
-                                 variant="body2"
-                                 sx={{ fontWeight: 500 }}
-                              >
-                                 {match.companyName}
-                              </Typography>
+                                 <LocationOnOutlinedIcon
+                                    sx={{
+                                       fontSize: 13,
+                                       color: tokens.color.text.muted,
+                                    }}
+                                 />
+                                 <Typography
+                                    variant="caption"
+                                    sx={{
+                                       color: tokens.color.text.muted,
+                                       fontSize: "0.6875rem",
+                                    }}
+                                 >
+                                    {match.location}
+                                 </Typography>
+                              </Box>
+                              {match.type && (
+                                 <Box
+                                    sx={{
+                                       display: "flex",
+                                       alignItems: "center",
+                                       gap: 0.5,
+                                    }}
+                                 >
+                                    <WorkOutlineIcon
+                                       sx={{
+                                          fontSize: 13,
+                                          color: tokens.color.text.muted,
+                                       }}
+                                    />
+                                    <Typography
+                                       variant="caption"
+                                       sx={{
+                                          color: tokens.color.text.muted,
+                                          fontSize: "0.6875rem",
+                                       }}
+                                    >
+                                       {match.type}
+                                    </Typography>
+                                 </Box>
+                              )}
+                              {/* Tags */}
+                              {match.tags?.slice(0, 2).map((tag) => (
+                                 <Chip
+                                    key={tag}
+                                    label={tag}
+                                    size="small"
+                                    sx={{
+                                       height: 18,
+                                       fontSize: "0.625rem",
+                                       fontWeight: 600,
+                                       backgroundColor: alpha(
+                                          tokens.color.primary[700],
+                                          0.08,
+                                       ),
+                                       color: tokens.color.primary[700],
+                                       "& .MuiChip-label": { px: 0.75 },
+                                    }}
+                                 />
+                              ))}
                            </Box>
-                        </TableCell>
-                        <TableCell>
-                           <Typography variant="body2">
-                              {match.position}
-                           </Typography>
-                        </TableCell>
-                        <TableCell>
-                           <Chip
-                              label={`${match.matchPercentage}%`}
-                              size="small"
-                              sx={{
-                                 backgroundColor:
-                                    match.matchPercentage >= 80
-                                       ? tokens.color.success + "20"
-                                       : match.matchPercentage >= 60
-                                       ? tokens.color.primary[300]
-                                       : tokens.color.warning + "20",
-                                 color:
-                                    match.matchPercentage >= 80
-                                       ? tokens.color.success
-                                       : match.matchPercentage >= 60
-                                       ? tokens.color.primary[700]
-                                       : tokens.color.warning,
-                                 fontWeight: 600,
-                              }}
-                           />
-                        </TableCell>
-                        <TableCell>
-                           <Typography variant="body2" color="text.secondary">
-                              {match.location}
-                           </Typography>
-                        </TableCell>
-                     </TableRow>
-                  ))}
-               </TableBody>
-            </Table>
-         </TableContainer>
-      </Card>
+                        </Box>
+
+                        {/* Saved bookmark icon */}
+                        <Box
+                           sx={{
+                              flexShrink: 0,
+                              color: tokens.color.text.muted,
+                              pt: 0.25,
+                           }}
+                        >
+                           {match.saved ? (
+                              <BookmarkIcon
+                                 sx={{
+                                    fontSize: 18,
+                                    color: tokens.color.primary[700],
+                                 }}
+                              />
+                           ) : (
+                              <BookmarkBorderIcon sx={{ fontSize: 18 }} />
+                           )}
+                        </Box>
+                     </Box>
+
+                     {idx < matches.length - 1 && (
+                        <Divider sx={{ borderColor: tokens.color.border }} />
+                     )}
+                  </Box>
+               );
+            })}
+         </Box>
+      </Box>
    );
 }

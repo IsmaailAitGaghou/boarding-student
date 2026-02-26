@@ -9,6 +9,7 @@ import {
    stepConnectorClasses,
    styled,
    Box,
+   alpha,
    Button,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -60,6 +61,10 @@ export function JourneyProgress({ stages }: JourneyProgressProps) {
             borderRadius: 2,
             boxShadow: "none",
             border: `1px solid ${tokens.color.border}`,
+            "&:hover": {
+               border: `1px solid ${alpha(tokens.color.primary[300], 0.3)}`,
+               boxShadow: tokens.shadow.sm,
+            },
          }}
       >
          <Stack spacing={3}>
@@ -71,7 +76,7 @@ export function JourneyProgress({ stages }: JourneyProgressProps) {
                }}
             >
                <Box>
-                  <Typography variant="h3" sx={{ fontWeight: 700}}>
+                  <Typography variant="h3" sx={{ fontWeight: 700 }}>
                      Your Journey Progress
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -90,7 +95,7 @@ export function JourneyProgress({ stages }: JourneyProgressProps) {
                   sx={{
                      p: 2,
                      borderColor: tokens.color.border,
-                     color: tokens.color.text.primary,
+                     color: tokens.color.text.primary[700],
                      "&:hover": {
                         borderColor: tokens.color.primary[700],
                         backgroundColor: tokens.color.primary[300] + "10",

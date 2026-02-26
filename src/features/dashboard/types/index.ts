@@ -33,11 +33,14 @@ export type ActivityItem = {
 export type UpcomingAppointment = {
 	id: string;
 	advisorName: string;
+	advisorRole?: string;
 	advisorAvatar?: string;
 	purpose: string;
 	date: Date;
 	duration: number; // minutes
 	meetingLink?: string;
+	locationOrLink?: string;
+	type?: "Online" | "On-site";
 };
 
 export type JourneyStage = {
@@ -54,4 +57,8 @@ export type RecommendedMatch = {
 	matchPercentage: number;
 	location: string;
 	logo?: string;
+	type?: string;
+	tags?: string[];
+	saved?: boolean;
+	status?: string;
 };

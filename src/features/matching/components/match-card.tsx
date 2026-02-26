@@ -51,7 +51,7 @@ export function MatchCard({
             gap: 1.5,
             transition: "border-color 0.15s, box-shadow 0.15s",
             "&:hover": {
-               borderColor: tokens.color.primary[300],
+               borderColor: alpha(tokens.color.primary[300], 0.3),
                boxShadow: tokens.shadow.sm,
             },
          }}
