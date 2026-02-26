@@ -482,7 +482,6 @@ export function DashboardLayout() {
                mt: `${APPBAR_HEIGHT}px`,
                minHeight: `calc(100vh - ${APPBAR_HEIGHT}px)`,
                backgroundColor: tokens.color.background,
-               // maxWidth: 1200,
                mx: "auto",
                transition: "width 225ms cubic-bezier(0.4, 0, 0.6, 1)",
             }}

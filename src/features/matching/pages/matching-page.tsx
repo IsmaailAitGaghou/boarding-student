@@ -183,7 +183,7 @@ export function MatchingPage() {
             sx={{
                border: `1px solid ${tokens.color.border}`,
                borderRadius: `${tokens.radius.card}px`,
-               backgroundColor: "#fff",
+               backgroundColor: `${tokens.color.surface}`,
                p: 2.5,
                mb: 3,
             }}

@@ -1,1 +1,1 @@
-export {};
+export { ResourcesPage } from "./resources-page";

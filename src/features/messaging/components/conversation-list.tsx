@@ -9,11 +9,15 @@ import {
    alpha,
    CircularProgress,
    Button,
+   ToggleButtonGroup,
+   ToggleButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCommentOutlinedIcon from "@mui/icons-material/AddCommentOutlined";
 import { tokens } from "@/app/theme";
 import type { Conversation } from "../types";
+
+type ReadFilter = "all" | "read" | "unread";
 
 interface ConversationListProps {
    conversations: Conversation[];
@@ -46,10 +50,18 @@ export function ConversationList({
    onNewChat,
 }: ConversationListProps) {
    const [search, setSearch] = useState("");
+   const [filter, setFilter] = useState<ReadFilter>("all");
 
-   const filtered = conversations.filter((c) =>
-      c.advisorName.toLowerCase().includes(search.toLowerCase()),
-   );
+   const filtered = conversations.filter((c) => {
+      const matchesSearch = c.advisorName
+         .toLowerCase()
+         .includes(search.toLowerCase());
+      const matchesFilter =
+         filter === "all" ||
+         (filter === "unread" && c.unreadCount > 0) ||
+         (filter === "read" && c.unreadCount === 0);
+      return matchesSearch && matchesFilter;
+   });
 
    return (
       <Box
@@ -109,7 +121,7 @@ export function ConversationList({
          </Box>
 
          {/* Search */}
-         <Box sx={{ px: 2, py: 1.5, flexShrink: 0 }}>
+         <Box sx={{ px: 2, pt: 1.5, pb: 0, flexShrink: 0 }}>
             <TextField
                placeholder="Search advisors…"
                value={search}
@@ -139,6 +151,63 @@ export function ConversationList({
                   ),
                }}
             />
+         </Box>
+
+         {/* Segmented filter */}
+         <Box sx={{ px: 2, pt: 1, pb: 1.5, flexShrink: 0 }}>
+            <ToggleButtonGroup
+               value={filter}
+               exclusive
+               onChange={(_e, val: ReadFilter | null) => {
+                  if (val !== null) setFilter(val);
+               }}
+               size="small"
+               sx={{
+                  width: "100%",
+                  backgroundColor: alpha(tokens.color.text.muted, 0.08),
+                  borderRadius: "999px",
+                  border: `1px solid ${tokens.color.border}`,
+                  padding: "3px",
+                  gap: 0,
+                  "& .MuiToggleButtonGroup-grouped": {
+                     flex: 1,
+                     border: "none",
+                     borderRadius: "999px !important",
+                     margin: 0,
+                     py: 0.5,
+                     px: 1,
+                     fontSize: "0.75rem",
+                     fontWeight: 600,
+                     lineHeight: 1.5,
+                     textTransform: "none",
+                     color: tokens.color.text.muted,
+                     transition: "all 0.15s",
+                     "&:hover": {
+                        backgroundColor: alpha(tokens.color.primary[700], 0.06),
+                        color: tokens.color.primary[700],
+                     },
+                     "&.Mui-selected": {
+                        backgroundColor: tokens.color.surface,
+                        color: tokens.color.primary[700],
+                        fontWeight: 700,
+                        boxShadow: tokens.shadow.sm,
+                        "&:hover": {
+                           backgroundColor: tokens.color.surface,
+                        },
+                     },
+                  },
+               }}
+            >
+               <ToggleButton value="all" disableRipple>
+                  All
+               </ToggleButton>
+               <ToggleButton value="read" disableRipple>
+                  Read
+               </ToggleButton>
+               <ToggleButton value="unread" disableRipple>
+                  Unread
+               </ToggleButton>
+            </ToggleButtonGroup>
          </Box>
 
          {/* List */}
@@ -176,11 +245,17 @@ export function ConversationList({
                         fontSize: "0.82rem",
                      }}
                   >
-                     {search
+                     {search && filter !== "all"
+                        ? `No ${filter} conversations matching "${search}"`
+                        : search
                         ? `No advisors matching "${search}"`
+                        : filter === "unread"
+                        ? "No unread conversations"
+                        : filter === "read"
+                        ? "No read conversations"
                         : "No conversations yet"}
                   </Typography>
-                  {!search && (
+                  {!search && filter === "all" && (
                      <Button
                         size="small"
                         onClick={onNewChat}
