@@ -7,7 +7,7 @@ interface SearchFieldProps {
    value: string;
    onChange: (value: string) => void;
    /** Additional flex/width styling for the wrapper. Defaults to flex: "1 1 260px". */
-//    flex?: string;
+   //    flex?: string;
 }
 
 /**

@@ -74,14 +74,12 @@ export function MatchingPage() {
       }
    }, []);
 
-
    useEffect(() => {
       void getMatches(DEFAULT_FILTERS).then((data) => {
          setAllCount(data.length);
       });
    }, []);
 
-   
    useEffect(() => {
       void loadMatches(debouncedFilters);
    }, [debouncedFilters, loadMatches]);

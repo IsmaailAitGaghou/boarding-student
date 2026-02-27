@@ -95,9 +95,7 @@ export function MatchFiltersBar({
             {/* More Filters button */}
             <Tooltip title="More filters" placement="top">
                <IconButton
-                  onClick={() =>
-                     setShowAdvancedFilters(!showAdvancedFilters)
-                  }
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                   size="small"
                   sx={{
                      ml: 0.5,
@@ -117,10 +115,7 @@ export function MatchFiltersBar({
                      }`,
                      transition: "all 0.2s ease",
                      "&:hover": {
-                        backgroundColor: alpha(
-                           tokens.color.primary[700],
-                           0.12,
-                        ),
+                        backgroundColor: alpha(tokens.color.primary[700], 0.12),
                         color: tokens.color.primary[700],
                         borderColor: tokens.color.primary[700],
                      },

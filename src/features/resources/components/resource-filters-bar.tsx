@@ -1,11 +1,4 @@
-import {
-   Box,
-   Chip,
-   Select,
-   MenuItem,
-   Typography,
-   alpha,
-} from "@mui/material";
+import { Box, Chip, Select, MenuItem, Typography, alpha } from "@mui/material";
 import { tokens } from "@/app/theme";
 import { SearchField } from "@/shared/components/search-field/SearchField";
 import { SortSelect } from "@/shared/components/sort-select/SortSelect";

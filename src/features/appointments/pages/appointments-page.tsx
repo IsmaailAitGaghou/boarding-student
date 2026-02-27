@@ -127,7 +127,6 @@ export function AppointmentsPage() {
       }
    }
 
-   
    return (
       <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: "auto" }}>
          {/* Page header */}
@@ -315,7 +314,8 @@ export function AppointmentsPage() {
          <Snackbar
             open={toast.open}
             autoHideDuration={3500}
-            onClose={hideToast}            message={toast.message}
+            onClose={hideToast}
+            message={toast.message}
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             ContentProps={{
                sx: {
