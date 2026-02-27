@@ -1,12 +1,13 @@
-import { isMock } from "@/api/env";
+import { createApiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
+import { isMock, getApiBaseUrl } from "@/api/env";
+import { mockDelay } from "@/api/mock-helpers";
 import type {
    Appointment,
    Advisor,
    BookingPayload,
    ReschedulePayload,
 } from "../types";
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 
 export const mockAdvisors: Advisor[] = [
@@ -126,25 +127,25 @@ const ALL_SLOTS = [
 
 export async function getAppointments(): Promise<Appointment[]> {
    if (isMock()) {
-      await sleep(600);
+      await mockDelay(600);
       return [...mockAppointmentsState];
    }
-   // TODO: return apiClient.get<Appointment[]>("/appointments");
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Appointment[]>(endpoints.appointments.list, { method: "GET" });
 }
 
 export async function getAppointmentById(id: string): Promise<Appointment | null> {
    if (isMock()) {
-      await sleep(250);
+      await mockDelay(250);
       return mockAppointmentsState.find((a) => a.id === id) ?? null;
    }
-   // TODO: return apiClient.get<Appointment>(`/appointments/${id}`);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Appointment>(endpoints.appointments.byId(id), { method: "GET" });
 }
 
 export async function bookAppointment(payload: BookingPayload): Promise<Appointment> {
    if (isMock()) {
-      await sleep(800);
+      await mockDelay(800);
       const advisor = mockAdvisors.find((a) => a.id === payload.advisorId);
       if (!advisor) throw new Error("Advisor not found");
 
@@ -171,8 +172,8 @@ export async function bookAppointment(payload: BookingPayload): Promise<Appointm
       mockAppointmentsState.unshift(newAppointment);
       return { ...newAppointment };
    }
-   // TODO: return apiClient.post<Appointment>("/appointments", { json: payload });
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Appointment>(endpoints.appointments.book, { method: "POST", json: payload });
 }
 
 export async function rescheduleAppointment(
@@ -180,7 +181,7 @@ export async function rescheduleAppointment(
    payload: ReschedulePayload,
 ): Promise<Appointment> {
    if (isMock()) {
-      await sleep(600);
+      await mockDelay(600);
       const idx = mockAppointmentsState.findIndex((a) => a.id === id);
       if (idx === -1) throw new Error("Appointment not found");
 
@@ -195,13 +196,13 @@ export async function rescheduleAppointment(
       };
       return { ...mockAppointmentsState[idx] };
    }
-   // TODO: return apiClient.patch<Appointment>(`/appointments/${id}/reschedule`, { json: payload });
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Appointment>(endpoints.appointments.reschedule(id), { method: "PATCH", json: payload });
 }
 
 export async function cancelAppointment(id: string): Promise<Appointment> {
    if (isMock()) {
-      await sleep(500);
+      await mockDelay(500);
       const idx = mockAppointmentsState.findIndex((a) => a.id === id);
       if (idx === -1) throw new Error("Appointment not found");
       mockAppointmentsState[idx] = {
@@ -210,24 +211,40 @@ export async function cancelAppointment(id: string): Promise<Appointment> {
       };
       return { ...mockAppointmentsState[idx] };
    }
-   // TODO: return apiClient.patch<Appointment>(`/appointments/${id}/cancel`);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Appointment>(endpoints.appointments.cancel(id), { method: "PATCH" });
 }
 
 // Helpers 
 
-export function getAdvisors(): Advisor[] {
+export async function getAdvisors(): Promise<Advisor[]> {
+   if (isMock()) return [...mockAdvisors];
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Advisor[]>(endpoints.appointments.advisors, { method: "GET" });
+}
+
+/** Sync version used by UI components in mock mode (always available). */
+export function getAdvisorsSync(): Advisor[] {
    return [...mockAdvisors];
 }
 
-export function getTimeSlots(
+export async function getTimeSlots(
    date: string,
    advisorId: string,
+): Promise<string[]> {
+   if (isMock()) {
+      const taken = ["10:30", "14:00"];
+      return ALL_SLOTS.filter((s) => !taken.includes(s));
+   }
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<string[]>(endpoints.appointments.slots(advisorId, date), { method: "GET" });
+}
+
+/** Sync version used by UI components in mock mode (always available). */
+export function getTimeSlotsSync(
+   _date: string,
+   _advisorId: string,
 ): string[] {
-   // In a real API this would query available slots for advisor + date.
-   // These params are reserved for real API integration.
-   void date;
-   void advisorId;
    const taken = ["10:30", "14:00"];
    return ALL_SLOTS.filter((s) => !taken.includes(s));
 }

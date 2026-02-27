@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { tokens } from "@/app/theme";
-import { getAdvisors } from "@/features/appointments/api";
+import { getAdvisorsSync } from "@/features/appointments/api";
 
 interface NewChatDialogProps {
    open: boolean;
@@ -31,7 +31,7 @@ export function NewChatDialog({
    onClose,
 }: NewChatDialogProps) {
    // Derive advisors synchronously — no useEffect needed
-   const advisors = getAdvisors();
+   const advisors = getAdvisorsSync();
 
    return (
       <Dialog

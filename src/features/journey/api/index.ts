@@ -1,8 +1,12 @@
-import { isMock } from "@/api/env";
+import { createApiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
+import { isMock, getApiBaseUrl } from "@/api/env";
+import { mockDelay } from "@/api/mock-helpers";
+import { formatDate } from "@/shared/utils/formatters";
 import type { JourneyData, JourneyStep, JourneySummary } from "../types";
 import type { JourneyStage } from "@/features/dashboard/types";
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+export const formatJourneyDate = formatDate;
 
 /**
  * SINGLE SOURCE OF TRUTH for journey steps.
@@ -145,7 +149,7 @@ const mockJourneySteps: JourneyStep[] = [
             id: "action-7-1",
             label: "Pre-Arrival Checklist",
             type: "external",
-            url: "https://example.com/checklist",
+            url: "",
          },
       ],
    },
@@ -168,7 +172,7 @@ const mockJourneySteps: JourneyStep[] = [
 ];
 
 const mockGetJourneyData = async (): Promise<JourneyData> => {
-   await sleep(600);
+   await mockDelay(600);
 
    const steps = mockJourneySteps.sort((a, b) => a.order - b.order);
    const completedSteps = steps.filter((s) => s.status === "completed");
@@ -198,8 +202,8 @@ const mockGetJourneyData = async (): Promise<JourneyData> => {
  */
 export async function getJourneyData(): Promise<JourneyData> {
    if (isMock()) return mockGetJourneyData();
-   // TODO: Real API call
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<JourneyData>(endpoints.journey.data, { method: "GET" });
 }
 
 /**
@@ -218,25 +222,13 @@ export async function updateJourneyStep(
    updates: Partial<JourneyStep>
 ): Promise<JourneyStep> {
    if (isMock()) {
-      await sleep(400);
+      await mockDelay(400);
       const step = mockJourneySteps.find((s) => s.id === stepId);
       if (!step) throw new Error("Step not found");
       return { ...step, ...updates };
    }
-   // TODO: Real API call
-   throw new Error("Real API not implemented");
-}
-
-/**
- * Format date for display
- */
-export function formatJourneyDate(isoDate: string): string {
-   const date = new Date(isoDate);
-   return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-   });
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<JourneyStep>(endpoints.journey.updateStep(stepId), { method: "PATCH", json: updates });
 }
 
 /**

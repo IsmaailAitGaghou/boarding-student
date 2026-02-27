@@ -1,4 +1,6 @@
-import { isMock } from "@/api/env";
+import { createApiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
+import { isMock, getApiBaseUrl } from "@/api/env";
 import { getJourneyProgress as getJourneyProgressFromJourney } from "@/features/journey/api";
 import { getProfile, calculateProfileCompletion } from "@/features/profile/api";
 import {
@@ -16,11 +18,10 @@ import type {
 } from "../types";
 import type { Appointment } from "@/features/appointments/types";
 import type { Match } from "@/features/matching/types";
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+import { mockDelay } from "@/api/mock-helpers";
 
 const mockGetDashboardStats = async (): Promise<DashboardStats> => {
-	await sleep(400);
+	await mockDelay(400);
 	return {
 		applications: {
 			total: 12,
@@ -46,7 +47,7 @@ const mockGetDashboardStats = async (): Promise<DashboardStats> => {
 };
 
 const mockGetRecentActivity = async (): Promise<ActivityItem[]> => {
-	await sleep(500);
+	await mockDelay(500);
 	return [
 		{
 			id: "1",
@@ -115,26 +116,26 @@ const mockGetJourneyProgress = async (): Promise<JourneyStage[]> => {
 
 export async function getDashboardStats(): Promise<DashboardStats> {
 	if (isMock()) return mockGetDashboardStats();
-	// TODO: Real API call
-	throw new Error("Real API not implemented");
+	const api = createApiClient({ baseUrl: getApiBaseUrl() });
+	return api.request<DashboardStats>(endpoints.dashboard.stats, { method: "GET" });
 }
 
 export async function getRecentActivity(): Promise<ActivityItem[]> {
 	if (isMock()) return mockGetRecentActivity();
-	// TODO: Real API call
-	throw new Error("Real API not implemented");
+	const api = createApiClient({ baseUrl: getApiBaseUrl() });
+	return api.request<ActivityItem[]>(endpoints.dashboard.recentActivity, { method: "GET" });
 }
 
 export async function getUpcomingAppointments(): Promise<UpcomingAppointment[]> {
 	if (isMock()) return mockGetUpcomingAppointments();
-	// TODO: Real API call
-	throw new Error("Real API not implemented");
+	const api = createApiClient({ baseUrl: getApiBaseUrl() });
+	return api.request<UpcomingAppointment[]>(endpoints.dashboard.upcomingAppointments, { method: "GET" });
 }
 
 export async function getJourneyProgress(): Promise<JourneyStage[]> {
 	if (isMock()) return mockGetJourneyProgress();
-	// TODO: Real API call
-	throw new Error("Real API not implemented");
+	const api = createApiClient({ baseUrl: getApiBaseUrl() });
+	return api.request<JourneyStage[]>(endpoints.dashboard.journeyProgress, { method: "GET" });
 }
 
 const mockGetProfileCompletion = async (): Promise<number> => {
@@ -146,8 +147,9 @@ const mockGetProfileCompletion = async (): Promise<number> => {
 
 export async function getProfileCompletion(): Promise<number> {
 	if (isMock()) return mockGetProfileCompletion();
-	// TODO: Real API call
-	throw new Error("Real API not implemented");
+	const api = createApiClient({ baseUrl: getApiBaseUrl() });
+	const res = await api.request<{ percentage: number }>(endpoints.dashboard.profileCompletion, { method: "GET" });
+	return res.percentage;
 }
 
 const mockGetRecommendedMatches = async (): Promise<RecommendedMatch[]> => {
@@ -181,6 +183,6 @@ const mockGetRecommendedMatches = async (): Promise<RecommendedMatch[]> => {
 
 export async function getRecommendedMatches(): Promise<RecommendedMatch[]> {
 	if (isMock()) return mockGetRecommendedMatches();
-	// TODO: Real API call
-	throw new Error("Real API not implemented");
+	const api = createApiClient({ baseUrl: getApiBaseUrl() });
+	return api.request<RecommendedMatch[]>(endpoints.dashboard.recommendedMatches, { method: "GET" });
 }

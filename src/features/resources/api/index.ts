@@ -1,7 +1,8 @@
-import { isMock } from "@/api/env";
+import { createApiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
+import { isMock, getApiBaseUrl } from "@/api/env";
+import { mockDelay } from "@/api/mock-helpers";
 import type { Resource, ResourceFilters } from "../types";
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // ── Mock data ────────────────────────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ const mockResourcesState: Resource[] = [
       type: "Link",
       description:
          "Find local language exchange meetups and practice with native speakers.",
-      url: "https://example.com/language-exchange",
+      url: "",
       minutes: 2,
       bookmarked: true,
       createdAt: "2026-02-15T09:00:00Z",
@@ -65,7 +66,7 @@ const mockResourcesState: Resource[] = [
       type: "PDF",
       description:
          "Comprehensive PDF guide explaining student health insurance plans and coverage.",
-      url: "https://example.com/docs/health-insurance-guide.pdf",
+      url: "",
       minutes: 10,
       bookmarked: false,
       createdAt: "2026-02-10T16:00:00Z",
@@ -78,7 +79,7 @@ const mockResourcesState: Resource[] = [
       type: "Link",
       description:
          "Upcoming social events, workshops, and cultural activities for students.",
-      url: "https://example.com/events/march-2026",
+      url: "",
       minutes: 3,
       bookmarked: true,
       createdAt: "2026-02-08T08:00:00Z",
@@ -91,7 +92,7 @@ const mockResourcesState: Resource[] = [
       type: "Video",
       description:
          "15-minute video tutorial on creating a student budget, tracking expenses, and saving tips.",
-      url: "https://example.com/videos/budgeting-101",
+      url: "",
       minutes: 15,
       bookmarked: false,
       createdAt: "2026-02-05T13:00:00Z",
@@ -117,7 +118,7 @@ const mockResourcesState: Resource[] = [
       type: "PDF",
       description:
          "Downloadable template for creating clear expectations with roommates.",
-      url: "https://example.com/docs/roommate-agreement.pdf",
+      url: "",
       minutes: 4,
       bookmarked: true,
       createdAt: "2026-02-01T15:00:00Z",
@@ -156,7 +157,7 @@ const mockResourcesState: Resource[] = [
       type: "Link",
       description:
          "Connect with 500+ international students through our online community.",
-      url: "https://example.com/community/student-network",
+      url: "",
       minutes: 2,
       bookmarked: false,
       createdAt: "2026-01-22T14:00:00Z",
@@ -169,7 +170,7 @@ const mockResourcesState: Resource[] = [
       type: "PDF",
       description:
          "Complete metro and bus map with student discount information.",
-      url: "https://example.com/docs/transport-guide.pdf",
+      url: "",
       minutes: 5,
       bookmarked: false,
       createdAt: "2026-01-20T11:00:00Z",
@@ -182,7 +183,7 @@ const mockResourcesState: Resource[] = [
       type: "Video",
       description:
          "20-minute video on preparing for official language proficiency tests.",
-      url: "https://example.com/videos/exam-prep",
+      url: "",
       minutes: 20,
       bookmarked: true,
       createdAt: "2026-01-18T16:30:00Z",
@@ -222,7 +223,7 @@ export async function getResources(
    filters?: ResourceFilters,
 ): Promise<Resource[]> {
    if (isMock()) {
-      await sleep(400);
+      await mockDelay(400);
       let results = [...mockResourcesState];
 
       // Filter by search
@@ -259,22 +260,28 @@ export async function getResources(
 
       return results;
    }
-   // TODO: return apiClient.get<Resource[]>("/resources", { params: filters });
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   const params = new URLSearchParams();
+   if (filters?.search) params.set("search", filters.search);
+   if (filters?.category) params.set("category", filters.category);
+   if (filters?.type) params.set("type", filters.type);
+   if (filters?.sort) params.set("sort", filters.sort);
+   const query = params.toString();
+   return api.request<Resource[]>(`${endpoints.resources.list}${query ? `?${query}` : ""}`, { method: "GET" });
 }
 
 export async function getResourceById(id: string): Promise<Resource | null> {
    if (isMock()) {
-      await sleep(250);
+      await mockDelay(250);
       return mockResourcesState.find((r) => r.id === id) ?? null;
    }
-   // TODO: return apiClient.get<Resource>(`/resources/${id}`);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Resource>(endpoints.resources.byId(id), { method: "GET" });
 }
 
 export async function toggleBookmark(id: string): Promise<Resource> {
    if (isMock()) {
-      await sleep(150);
+      await mockDelay(150);
       const idx = mockResourcesState.findIndex((r) => r.id === id);
       if (idx === -1) throw new Error("Resource not found");
       mockResourcesState[idx] = {
@@ -283,13 +290,13 @@ export async function toggleBookmark(id: string): Promise<Resource> {
       };
       return { ...mockResourcesState[idx] };
    }
-   // TODO: return apiClient.post<Resource>(`/resources/${id}/bookmark`);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Resource>(endpoints.resources.bookmark(id), { method: "POST" });
 }
 
 export async function incrementResourceView(id: string): Promise<void> {
    if (isMock()) {
-      await sleep(50);
+      await mockDelay(50);
       const idx = mockResourcesState.findIndex((r) => r.id === id);
       if (idx !== -1) {
          mockResourcesState[idx] = {
@@ -299,7 +306,6 @@ export async function incrementResourceView(id: string): Promise<void> {
       }
       return;
    }
-   // TODO: return apiClient.post(`/resources/${id}/view`);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   await api.request<void>(endpoints.resources.view(id), { method: "POST" });
 }
-

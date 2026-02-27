@@ -3,6 +3,7 @@ import { Box, Typography, Alert, Snackbar } from "@mui/material";
 
 import { getProfile, updateProfile, calculateProfileCompletion } from "../api";
 import { Loading } from "@/shared/components/loading";
+import { useToast } from "@/shared/hooks/useToast";
 import { ProfileCard } from "../components/profile-card";
 import { PersonalInfoSection } from "../components/personal-info-section";
 import { SkillsSection } from "../components/skills-section";
@@ -20,7 +21,7 @@ export function ProfilePage() {
    const [saving, setSaving] = useState(false);
    const [error, setError] = useState<string | null>(null);
    const [isEditMode, setIsEditMode] = useState(false);
-   const [successMessage, setSuccessMessage] = useState("");
+   const { toast, showToast, hideToast } = useToast();
 
    const profileCompletion = profile ? calculateProfileCompletion(profile) : 0;
 
@@ -81,7 +82,7 @@ export function ProfilePage() {
          setProfile(updatedProfile);
          setEditedProfile(updatedProfile);
          setIsEditMode(false);
-         setSuccessMessage("Profile updated successfully!");
+         showToast("Profile updated successfully!");
       } catch (e) {
          setError(
             e instanceof Error
@@ -122,7 +123,7 @@ export function ProfilePage() {
          ...editedProfile,
          skills: [...editedProfile.skills, skill],
       });
-      setSuccessMessage("Skill added successfully!");
+      showToast("Skill added successfully!");
    };
 
    const handleRemoveSkill = (skill: string) => {
@@ -132,7 +133,7 @@ export function ProfilePage() {
          ...editedProfile,
          skills: editedProfile.skills.filter((s) => s !== skill),
       });
-      setSuccessMessage("Skill removed successfully!");
+      showToast("Skill removed successfully!");
    };
 
    const handleAddLanguage = (language: string) => {
@@ -142,7 +143,7 @@ export function ProfilePage() {
          ...editedProfile,
          languages: [...editedProfile.languages, language],
       });
-      setSuccessMessage("Language added successfully!");
+      showToast("Language added successfully!");
    };
 
    const handleRemoveLanguage = (language: string) => {
@@ -152,7 +153,7 @@ export function ProfilePage() {
          ...editedProfile,
          languages: editedProfile.languages.filter((l) => l !== language),
       });
-      setSuccessMessage("Language removed successfully!");
+      showToast("Language removed successfully!");
    };
 
    const handleAddEducation = (education: Education) => {
@@ -162,7 +163,7 @@ export function ProfilePage() {
          ...editedProfile,
          education: [...editedProfile.education, education],
       });
-      setSuccessMessage("Education added successfully!");
+      showToast("Education added successfully!");
    };
 
    const handleUpdateEducation = (id: string, education: Education) => {
@@ -174,7 +175,7 @@ export function ProfilePage() {
             e.id === id ? education : e,
          ),
       });
-      setSuccessMessage("Education updated successfully!");
+      showToast("Education updated successfully!");
    };
 
    const handleRemoveEducation = (id: string) => {
@@ -184,7 +185,7 @@ export function ProfilePage() {
          ...editedProfile,
          education: editedProfile.education.filter((e) => e.id !== id),
       });
-      setSuccessMessage("Education removed successfully!");
+      showToast("Education removed successfully!");
    };
 
    const handleAddExperience = (experience: Experience) => {
@@ -194,7 +195,7 @@ export function ProfilePage() {
          ...editedProfile,
          experience: [...editedProfile.experience, experience],
       });
-      setSuccessMessage("Experience added successfully!");
+      showToast("Experience added successfully!");
    };
 
    const handleUpdateExperience = (id: string, experience: Experience) => {
@@ -206,7 +207,7 @@ export function ProfilePage() {
             e.id === id ? experience : e,
          ),
       });
-      setSuccessMessage("Experience updated successfully!");
+      showToast("Experience updated successfully!");
    };
 
    const handleRemoveExperience = (id: string) => {
@@ -216,7 +217,7 @@ export function ProfilePage() {
          ...editedProfile,
          experience: editedProfile.experience.filter((e) => e.id !== id),
       });
-      setSuccessMessage("Experience removed successfully!");
+      showToast("Experience removed successfully!");
    };
 
    if (loading) {
@@ -358,17 +359,17 @@ export function ProfilePage() {
 
          {/* Success Snackbar */}
          <Snackbar
-            open={!!successMessage}
+            open={toast.open}
             autoHideDuration={3000}
-            onClose={() => setSuccessMessage("")}
+            onClose={hideToast}
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
          >
             <Alert
-               onClose={() => setSuccessMessage("")}
+               onClose={hideToast}
                severity="success"
                sx={{ width: "100%" }}
             >
-               {successMessage}
+               {toast.message}
             </Alert>
          </Snackbar>
       </Box>

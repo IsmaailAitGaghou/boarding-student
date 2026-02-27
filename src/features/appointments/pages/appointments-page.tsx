@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
    Box,
    Typography,
@@ -13,6 +13,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { tokens } from "@/app/theme";
 import { Loading } from "@/shared/components/loading";
+import { useToast } from "@/shared/hooks/useToast";
 import {
    getAppointments,
    bookAppointment,
@@ -31,7 +32,6 @@ import { AppointmentCard } from "../components/appointment-card";
 import { AppointmentDetailsDrawer } from "../components/appointment-details-drawer";
 import { BookAppointmentDialog } from "../components/book-appointment-dialog";
 import { RescheduleDialog } from "../components/reschedule-dialog";
-import { useEffect } from "react";
 
 export function AppointmentsPage() {
    const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -47,10 +47,7 @@ export function AppointmentsPage() {
    const [bookingSubmitting, setBookingSubmitting] = useState(false);
    const [rescheduleSubmitting, setRescheduleSubmitting] = useState(false);
 
-   const [toast, setToast] = useState<{ open: boolean; message: string }>({
-      open: false,
-      message: "",
-   });
+   const { toast, showToast, hideToast } = useToast();
 
    const loadAppointments = useCallback(async () => {
       setLoading(true);
@@ -83,10 +80,6 @@ export function AppointmentsPage() {
       appointments.find((a) => a.id === selectedId) ?? null;
 
    // ── Handlers ───────────────────────────────────────────────────────────────
-   function showToast(message: string) {
-      setToast({ open: true, message });
-   }
-
    async function handleBook(payload: BookingPayload) {
       setBookingSubmitting(true);
       try {
@@ -322,8 +315,7 @@ export function AppointmentsPage() {
          <Snackbar
             open={toast.open}
             autoHideDuration={3500}
-            onClose={() => setToast((t) => ({ ...t, open: false }))}
-            message={toast.message}
+            onClose={hideToast}            message={toast.message}
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             ContentProps={{
                sx: {

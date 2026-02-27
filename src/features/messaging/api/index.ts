@@ -1,9 +1,10 @@
-import { isMock } from "@/api/env";
+import { createApiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
+import { isMock, getApiBaseUrl } from "@/api/env";
+import { mockDelay } from "@/api/mock-helpers";
 // Re-use the same advisors from appointments — single source of truth
 import { mockAdvisors } from "@/features/appointments/api";
 import type { Conversation, Message, SendMessagePayload } from "../types";
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // ─── Mock conversations (one per advisor) ────────────────────────────────────
 const mockConversationsState: Conversation[] = [
@@ -171,20 +172,20 @@ let _nextMsgId = 100;
 
 export async function getConversations(): Promise<Conversation[]> {
    if (isMock()) {
-      await sleep(500);
+      await mockDelay(500);
       return [...mockConversationsState];
    }
-   // TODO: return apiClient.get<Conversation[]>("/messaging/conversations");
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Conversation[]>(endpoints.messaging.conversations, { method: "GET" });
 }
 
 export async function getMessages(conversationId: string): Promise<Message[]> {
    if (isMock()) {
-      await sleep(350);
+      await mockDelay(350);
       return [...(mockMessagesState[conversationId] ?? [])];
    }
-   // TODO: return apiClient.get<Message[]>(`/messaging/conversations/${conversationId}/messages`);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Message[]>(endpoints.messaging.messages(conversationId), { method: "GET" });
 }
 
 export async function sendMessage(
@@ -192,7 +193,7 @@ export async function sendMessage(
    payload: SendMessagePayload,
 ): Promise<Message> {
    if (isMock()) {
-      await sleep(450);
+      await mockDelay(450);
       const newMsg: Message = {
          id: `msg-opt-${_nextMsgId++}`,
          conversationId,
@@ -219,13 +220,13 @@ export async function sendMessage(
       }
       return { ...newMsg };
    }
-   // TODO: return apiClient.post<Message>(`/messaging/conversations/${conversationId}/messages`, { json: payload });
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Message>(endpoints.messaging.sendMessage(conversationId), { method: "POST", json: payload });
 }
 
 export async function markConversationRead(conversationId: string): Promise<void> {
    if (isMock()) {
-      await sleep(100);
+      await mockDelay(100);
       const idx = mockConversationsState.findIndex((c) => c.id === conversationId);
       if (idx !== -1) {
          mockConversationsState[idx] = {
@@ -235,13 +236,13 @@ export async function markConversationRead(conversationId: string): Promise<void
       }
       return;
    }
-   // TODO: return apiClient.patch(`/messaging/conversations/${conversationId}/read`);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   await api.request<void>(endpoints.messaging.markRead(conversationId), { method: "PATCH" });
 }
 
 export async function startConversation(advisorId: string): Promise<Conversation> {
    if (isMock()) {
-      await sleep(400);
+      await mockDelay(400);
       // Return existing if already present
       const existing = mockConversationsState.find(
          (c) => c.advisorId === advisorId,
@@ -265,6 +266,6 @@ export async function startConversation(advisorId: string): Promise<Conversation
       mockMessagesState[newConv.id] = [];
       return { ...newConv };
    }
-   // TODO: return apiClient.post<Conversation>("/messaging/conversations", { json: { advisorId } });
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Conversation>(endpoints.messaging.startConversation, { method: "POST", json: { advisorId } });
 }

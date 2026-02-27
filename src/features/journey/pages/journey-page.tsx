@@ -1,39 +1,21 @@
-﻿import { useEffect, useState, useCallback } from "react";
-import { Box, Typography, Alert, Button, Divider, alpha } from "@mui/material";
+﻿import { Box, Typography, Alert, Button, Divider, alpha } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import RouteOutlinedIcon from "@mui/icons-material/RouteOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { getJourneyData } from "../api";
 import { JourneySummaryCard, JourneyStepCard } from "../components";
 import { Loading } from "@/shared/components/loading";
+import { useAsyncData } from "@/shared/hooks/useAsyncData";
 import { tokens } from "@/app/theme";
 import type { JourneyData } from "../types";
 
 export function JourneyPage() {
-   const [journeyData, setJourneyData] = useState<JourneyData | null>(null);
-   const [loading, setLoading] = useState(true);
-   const [error, setError] = useState<string | null>(null);
-
-   const loadJourney = useCallback(async () => {
-      try {
-         setLoading(true);
-         setError(null);
-         const data = await getJourneyData();
-         setJourneyData(data);
-      } catch (e) {
-         setError(
-            e instanceof Error
-               ? e.message
-               : "Failed to load journey data. Please try again.",
-         );
-      } finally {
-         setLoading(false);
-      }
-   }, []);
-
-   useEffect(() => {
-      loadJourney();
-   }, [loadJourney]);
+   const {
+      data: journeyData,
+      loading,
+      error,
+      reload: reloadJourney,
+   } = useAsyncData<JourneyData>(getJourneyData);
 
    const scrollToCurrentStep = () => {
       if (journeyData?.summary.currentStep) {
@@ -60,7 +42,7 @@ export function JourneyPage() {
                      color="error"
                      size="small"
                      startIcon={<RefreshIcon />}
-                     onClick={loadJourney}
+                     onClick={reloadJourney}
                   >
                      Retry
                   </Button>
@@ -126,11 +108,7 @@ export function JourneyPage() {
 
          {/* Inline error banner (data still shown) */}
          {error && (
-            <Alert
-               severity="error"
-               sx={{ mb: 3 }}
-               onClose={() => setError(null)}
-            >
+            <Alert severity="error" sx={{ mb: 3 }}>
                {error}
             </Alert>
          )}

@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Box, Typography, Alert, Button } from "@mui/material";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import { tokens } from "@/app/theme";
 import { Loading } from "@/shared/components/loading";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 import { ResourceCard } from "../components/resource-card";
 import { ResourceDetailsDrawer } from "../components/resource-details-drawer";
 import { ResourceFiltersBar } from "../components/resource-filters-bar";
@@ -34,9 +35,7 @@ export function ResourcesPage() {
       useState<Resource | null>(null);
    const [bookmarkingId, setBookmarkingId] = useState<string | null>(null);
 
-   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-   const filtersRef = useRef(filters);
-   filtersRef.current = filters;
+   const debouncedFilters = useDebounce(filters, 500);
 
    const loadResources = useCallback(async (f: ResourceFilters) => {
       setLoading(true);
@@ -61,16 +60,10 @@ export function ResourcesPage() {
       });
    }, []);
 
-   // Load resources with debounced search
+   // Load resources with debounced filters
    useEffect(() => {
-      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-      searchDebounceRef.current = setTimeout(() => {
-         void loadResources(filtersRef.current);
-      }, 500);
-      return () => {
-         if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-      };
-   }, [filters, loadResources]);
+      void loadResources(debouncedFilters);
+   }, [debouncedFilters, loadResources]);
 
    // Load selected resource details
    useEffect(() => {

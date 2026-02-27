@@ -1,7 +1,8 @@
-import { isMock } from "@/api/env";
+import { createApiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
+import { isMock, getApiBaseUrl } from "@/api/env";
+import { mockDelay } from "@/api/mock-helpers";
 import type { Notification, GetNotificationsParams } from "../types";
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // ─── Mutable mock state ───────────────────────────────────────────────────────
 // Using an array that mutation functions operate on, simulating a real store.
@@ -84,7 +85,7 @@ let mockNotifications: Notification[] = [
 const mockGetNotifications = async (
    params?: GetNotificationsParams,
 ): Promise<Notification[]> => {
-   await sleep(400);
+   await mockDelay(400);
    const filter = params?.filter ?? "all";
    if (filter === "unread") return mockNotifications.filter((n) => !n.read);
    if (filter === "read") return mockNotifications.filter((n) => n.read);
@@ -92,29 +93,29 @@ const mockGetNotifications = async (
 };
 
 const mockGetUnreadCount = async (): Promise<number> => {
-   await sleep(200);
+   await mockDelay(200);
    return mockNotifications.filter((n) => !n.read).length;
 };
 
 const mockMarkAsRead = async (id: string): Promise<void> => {
-   await sleep(150);
+   await mockDelay(150);
    mockNotifications = mockNotifications.map((n) =>
       n.id === id ? { ...n, read: true } : n,
    );
 };
 
 const mockMarkAllAsRead = async (): Promise<void> => {
-   await sleep(300);
+   await mockDelay(300);
    mockNotifications = mockNotifications.map((n) => ({ ...n, read: true }));
 };
 
 const mockClearNotification = async (id: string): Promise<void> => {
-   await sleep(150);
+   await mockDelay(150);
    mockNotifications = mockNotifications.filter((n) => n.id !== id);
 };
 
 const mockClearAll = async (): Promise<void> => {
-   await sleep(300);
+   await mockDelay(300);
    mockNotifications = [];
 };
 
@@ -124,30 +125,38 @@ export async function getNotifications(
    params?: GetNotificationsParams,
 ): Promise<Notification[]> {
    if (isMock()) return mockGetNotifications(params);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   const query = params?.filter && params.filter !== "all" ? `?filter=${params.filter}` : "";
+   return api.request<Notification[]>(`${endpoints.notifications.list}${query}`, { method: "GET" });
 }
 
 export async function getUnreadCount(): Promise<number> {
    if (isMock()) return mockGetUnreadCount();
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   const res = await api.request<{ count: number }>(endpoints.notifications.unreadCount, { method: "GET" });
+   return res.count;
 }
 
 export async function markAsRead(id: string): Promise<void> {
    if (isMock()) return mockMarkAsRead(id);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   await api.request<void>(endpoints.notifications.markRead(id), { method: "PATCH" });
 }
 
 export async function markAllAsRead(): Promise<void> {
    if (isMock()) return mockMarkAllAsRead();
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   await api.request<void>(endpoints.notifications.markAllRead, { method: "PATCH" });
 }
 
 export async function clearNotification(id: string): Promise<void> {
    if (isMock()) return mockClearNotification(id);
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   await api.request<void>(endpoints.notifications.clear(id), { method: "DELETE" });
 }
 
 export async function clearAll(): Promise<void> {
    if (isMock()) return mockClearAll();
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   await api.request<void>(endpoints.notifications.clearAll, { method: "DELETE" });
 }

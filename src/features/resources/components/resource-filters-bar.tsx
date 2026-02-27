@@ -1,16 +1,14 @@
 import {
    Box,
-   TextField,
-   InputAdornment,
    Chip,
    Select,
    MenuItem,
    Typography,
    alpha,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import TuneIcon from "@mui/icons-material/Tune";
 import { tokens } from "@/app/theme";
+import { SearchField } from "@/shared/components/search-field/SearchField";
+import { SortSelect } from "@/shared/components/sort-select/SortSelect";
 import type {
    ResourceFilters,
    ResourceCategory,
@@ -72,68 +70,17 @@ export function ResourceFiltersBar({
                flexWrap: "wrap",
             }}
          >
-            <TextField
+            <SearchField
                placeholder="Search resources by title or topic…"
-               value={filters.search}
-               onChange={(e) => onChange({ search: e.target.value })}
-               size="small"
-               sx={{
-                  flex: "1 1 260px",
-                  "& .MuiOutlinedInput-root": {
-                     borderRadius: `${tokens.radius.control}px`,
-                     "& fieldset": { borderColor: tokens.color.border },
-                     "&:hover fieldset": {
-                        borderColor: tokens.color.primary[500],
-                     },
-                     "&.Mui-focused fieldset": {
-                        borderColor: tokens.color.primary[700],
-                     },
-                  },
-               }}
-               slotProps={{
-                  input: {
-                     startAdornment: (
-                        <InputAdornment position="start">
-                           <SearchIcon
-                              sx={{
-                                 fontSize: 18,
-                                 color: tokens.color.text.muted,
-                              }}
-                           />
-                        </InputAdornment>
-                     ),
-                  },
-               }}
+               value={filters.search ?? ""}
+               onChange={(v) => onChange({ search: v })}
             />
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-               <TuneIcon
-                  sx={{ fontSize: 16, color: tokens.color.text.muted }}
-               />
-               <Select
-                  value={filters.sort}
-                  onChange={(e) =>
-                     onChange({ sort: e.target.value as SortOption })
-                  }
-                  size="small"
-                  sx={{
-                     minWidth: 160,
-                     borderRadius: `${tokens.radius.control}px`,
-                     "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: tokens.color.border,
-                     },
-                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: tokens.color.primary[500],
-                     },
-                  }}
-               >
-                  {SORT_OPTIONS.map((o) => (
-                     <MenuItem key={o.value} value={o.value}>
-                        {o.label}
-                     </MenuItem>
-                  ))}
-               </Select>
-            </Box>
+            <SortSelect
+               options={SORT_OPTIONS}
+               value={filters.sort ?? "recent"}
+               onChange={(v) => onChange({ sort: v as SortOption })}
+            />
          </Box>
 
          {/* Filter chips row */}

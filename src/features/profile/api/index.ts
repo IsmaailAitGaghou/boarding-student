@@ -1,7 +1,8 @@
-import { isMock } from "@/api/env";
+import { createApiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
+import { isMock, getApiBaseUrl } from "@/api/env";
+import { mockDelay } from "@/api/mock-helpers";
 import type { StudentProfile, ProfileUpdateRequest } from "../types";
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // Mock data for student profile
 const mockProfileData: StudentProfile = {
@@ -53,14 +54,14 @@ const mockProfileData: StudentProfile = {
 };
 
 const mockGetProfile = async (): Promise<StudentProfile> => {
-	await sleep(500);
+	await mockDelay(500);
 	return mockProfileData;
 };
 
 const mockUpdateProfile = async (
 	data: ProfileUpdateRequest
 ): Promise<StudentProfile> => {
-	await sleep(600);
+	await mockDelay(600);
 	// Simulate updating the profile
 	return {
 		...mockProfileData,
@@ -71,16 +72,16 @@ const mockUpdateProfile = async (
 
 export async function getProfile(): Promise<StudentProfile> {
 	if (isMock()) return mockGetProfile();
-	// TODO: Real API call
-	throw new Error("Real API not implemented");
+	const api = createApiClient({ baseUrl: getApiBaseUrl() });
+	return api.request<StudentProfile>(endpoints.profile.me, { method: "GET" });
 }
 
 export async function updateProfile(
 	data: ProfileUpdateRequest
 ): Promise<StudentProfile> {
 	if (isMock()) return mockUpdateProfile(data);
-	// TODO: Real API call
-	throw new Error("Real API not implemented");
+	const api = createApiClient({ baseUrl: getApiBaseUrl() });
+	return api.request<StudentProfile>(endpoints.profile.update, { method: "PATCH", json: data });
 }
 
 // Helper function to calculate profile completion percentage

@@ -93,9 +93,9 @@ export function DashboardLayout() {
             }}
          >
             {isCollapsed ? (
-               <img src="./logo2.png" alt="Logo" width={40} height={40} />
+               <img src="../logo/logo2.png" alt="Logo" width={40} height={40} />
             ) : (
-               <img src="./logo.png" alt="Logo" width={150} />
+               <img src="../logo/logo.png" alt="Logo" width={150} />
             )}
 
             {/* Collapse Toggle Button - Desktop Only */}

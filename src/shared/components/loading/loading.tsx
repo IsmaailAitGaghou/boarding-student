@@ -4,26 +4,10 @@ type LoadingVariant = "fullPage" | "section" | "inline";
 type LoadingType = "circular" | "linear";
 
 interface LoadingProps {
-   /**
-    * Variant determines layout and spacing
-    * - fullPage: Fixed position, full viewport, centered
-    * - section: Flexbox centered with min-height (for cards/sections)
-    * - inline: Compact, no extra spacing (for buttons/small areas)
-    */
+   
    variant?: LoadingVariant;
-   /**
-    * Type of loading indicator
-    * - circular: Spinner (default)
-    * - linear: Progress bar
-    */
    type?: LoadingType;
-   /**
-    * Size of the circular progress (ignored for linear)
-    */
    size?: number;
-   /**
-    * Minimum height for section variant
-    */
    minHeight?: number;
 }
 

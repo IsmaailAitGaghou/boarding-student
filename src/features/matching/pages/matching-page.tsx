@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Box, Typography, Alert, Button, alpha } from "@mui/material";
 import TuneIcon from "@mui/icons-material/Tune";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
@@ -6,6 +6,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 import { tokens } from "@/app/theme";
 import { Loading } from "@/shared/components/loading";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 import {
    getMatches,
    getIndustries,
@@ -42,9 +43,7 @@ export function MatchingPage() {
    const [savingId, setSavingId] = useState<string | null>(null);
    const [applyingId, setApplyingId] = useState<string | null>(null);
 
-   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-   const filtersRef = useRef(filters);
-   filtersRef.current = filters;
+   const debouncedFilters = useDebounce(filters, 500);
 
    // Load static lists once
    useEffect(() => {
@@ -84,15 +83,8 @@ export function MatchingPage() {
 
    
    useEffect(() => {
-      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-      searchDebounceRef.current = setTimeout(() => {
-         void loadMatches(filtersRef.current);
-      }, 500);
-      return () => {
-         if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-      };
-      
-   }, [filters, loadMatches]);
+      void loadMatches(debouncedFilters);
+   }, [debouncedFilters, loadMatches]);
 
    // Derived data
    const savedCount = matches.filter((m) => m.saved).length;

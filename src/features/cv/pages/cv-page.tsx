@@ -12,6 +12,7 @@ import {
 import { getCv, uploadCv, deleteCv, downloadCv } from "../api";
 import { CvEmptyState, CvUploadZone, CvFileCard } from "../components";
 import { Loading } from "@/shared/components/loading";
+import { useToast } from "@/shared/hooks/useToast";
 import type { CvFile } from "../types";
 import { tokens } from "@/app/theme";
 
@@ -23,7 +24,7 @@ export function CvPage() {
    const [downloading, setDownloading] = useState(false);
    const [deleting, setDeleting] = useState(false);
    const [error, setError] = useState<string | null>(null);
-   const [successMessage, setSuccessMessage] = useState("");
+   const { toast, showToast, hideToast } = useToast();
 
    useEffect(() => {
       loadCv();
@@ -57,7 +58,7 @@ export function CvPage() {
          });
 
          setCv(uploadedCv);
-         setSuccessMessage(
+         showToast(
             cv ? "CV replaced successfully!" : "CV uploaded successfully!",
          );
       } catch (e) {
@@ -79,7 +80,7 @@ export function CvPage() {
          setDownloading(true);
          setError(null);
          await downloadCv(cv.fileName);
-         setSuccessMessage("CV downloaded successfully!");
+         showToast("CV downloaded successfully!");
       } catch (e) {
          setError(
             e instanceof Error
@@ -97,7 +98,7 @@ export function CvPage() {
          setError(null);
          await deleteCv();
          setCv(null);
-         setSuccessMessage("CV deleted successfully!");
+         showToast("CV deleted successfully!");
       } catch (e) {
          setError(
             e instanceof Error
@@ -243,17 +244,17 @@ export function CvPage() {
 
          {/* Success Snackbar */}
          <Snackbar
-            open={!!successMessage}
+            open={toast.open}
             autoHideDuration={3000}
-            onClose={() => setSuccessMessage("")}
+            onClose={hideToast}
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
          >
             <Alert
-               onClose={() => setSuccessMessage("")}
+               onClose={hideToast}
                severity="success"
                sx={{ width: "100%" }}
             >
-               {successMessage}
+               {toast.message}
             </Alert>
          </Snackbar>
       </Box>

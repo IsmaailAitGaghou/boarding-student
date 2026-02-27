@@ -1,8 +1,6 @@
 import { useState } from "react";
 import {
    Box,
-   TextField,
-   InputAdornment,
    Chip,
    Select,
    MenuItem,
@@ -12,10 +10,10 @@ import {
    Collapse,
    alpha,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import TuneIcon from "@mui/icons-material/Tune";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { tokens } from "@/app/theme";
+import { SearchField } from "@/shared/components/search-field/SearchField";
+import { SortSelect } from "@/shared/components/sort-select/SortSelect";
 import type { MatchFilters, MatchType } from "../types";
 
 interface MatchFiltersBarProps {
@@ -82,106 +80,55 @@ export function MatchFiltersBar({
                flexWrap: "wrap",
             }}
          >
-            <TextField
+            <SearchField
                placeholder="Search company, role, or skill…"
                value={filters.search}
-               onChange={(e) => onChange({ search: e.target.value })}
-               size="small"
-               sx={{
-                  flex: "1 1 260px",
-                  "& .MuiOutlinedInput-root": {
-                     borderRadius: `${tokens.radius.control}px`,
-                     "& fieldset": { borderColor: tokens.color.border },
-                     "&:hover fieldset": {
-                        borderColor: tokens.color.primary[500],
-                     },
-                     "&.Mui-focused fieldset": {
-                        borderColor: tokens.color.primary[700],
-                     },
-                  },
-               }}
-               slotProps={{
-                  input: {
-                     startAdornment: (
-                        <InputAdornment position="start">
-                           <SearchIcon
-                              sx={{
-                                 fontSize: 18,
-                                 color: tokens.color.text.muted,
-                              }}
-                           />
-                        </InputAdornment>
-                     ),
-                  },
-               }}
+               onChange={(v) => onChange({ search: v })}
             />
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-               <TuneIcon
-                  sx={{ fontSize: 16, color: tokens.color.text.muted }}
-               />
-               <Select
-                  value={filters.sort}
-                  onChange={(e) =>
-                     onChange({ sort: e.target.value as MatchFilters["sort"] })
+            <SortSelect
+               options={[...SORT_OPTIONS]}
+               value={filters.sort}
+               onChange={(v) => onChange({ sort: v as MatchFilters["sort"] })}
+            />
+
+            {/* More Filters button */}
+            <Tooltip title="More filters" placement="top">
+               <IconButton
+                  onClick={() =>
+                     setShowAdvancedFilters(!showAdvancedFilters)
                   }
                   size="small"
                   sx={{
-                     minWidth: 160,
-                     borderRadius: `${tokens.radius.control}px`,
-                     "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: tokens.color.border,
-                     },
-                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: tokens.color.primary[500],
+                     ml: 0.5,
+                     backgroundColor: showAdvancedFilters
+                        ? alpha(tokens.color.primary[700], 0.12)
+                        : hasAdvancedFiltersActive
+                        ? alpha(tokens.color.primary[700], 0.08)
+                        : "transparent",
+                     color:
+                        showAdvancedFilters || hasAdvancedFiltersActive
+                           ? tokens.color.primary[700]
+                           : tokens.color.text.muted,
+                     border: `1.5px solid ${
+                        showAdvancedFilters || hasAdvancedFiltersActive
+                           ? tokens.color.primary[700]
+                           : tokens.color.border
+                     }`,
+                     transition: "all 0.2s ease",
+                     "&:hover": {
+                        backgroundColor: alpha(
+                           tokens.color.primary[700],
+                           0.12,
+                        ),
+                        color: tokens.color.primary[700],
+                        borderColor: tokens.color.primary[700],
                      },
                   }}
                >
-                  {SORT_OPTIONS.map((o) => (
-                     <MenuItem key={o.value} value={o.value}>
-                        {o.label}
-                     </MenuItem>
-                  ))}
-               </Select>
-
-               {/* More Filters button */}
-               <Tooltip title="More filters" placement="top">
-                  <IconButton
-                     onClick={() =>
-                        setShowAdvancedFilters(!showAdvancedFilters)
-                     }
-                     size="small"
-                     sx={{
-                        ml: 0.5,
-                        backgroundColor: showAdvancedFilters
-                           ? alpha(tokens.color.primary[700], 0.12)
-                           : hasAdvancedFiltersActive
-                           ? alpha(tokens.color.primary[700], 0.08)
-                           : "transparent",
-                        color:
-                           showAdvancedFilters || hasAdvancedFiltersActive
-                              ? tokens.color.primary[700]
-                              : tokens.color.text.muted,
-                        border: `1.5px solid ${
-                           showAdvancedFilters || hasAdvancedFiltersActive
-                              ? tokens.color.primary[700]
-                              : tokens.color.border
-                        }`,
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                           backgroundColor: alpha(
-                              tokens.color.primary[700],
-                              0.12,
-                           ),
-                           color: tokens.color.primary[700],
-                           borderColor: tokens.color.primary[700],
-                        },
-                     }}
-                  >
-                     <FilterListIcon sx={{ fontSize: 18 }} />
-                  </IconButton>
-               </Tooltip>
-            </Box>
+                  <FilterListIcon sx={{ fontSize: 18 }} />
+               </IconButton>
+            </Tooltip>
          </Box>
 
          {/* Basic filters row - Status only */}

@@ -1,9 +1,9 @@
-import { isMock } from "@/api/env";
+import { createApiClient } from "@/api/client";
+import { endpoints } from "@/api/endpoints";
+import { isMock, getApiBaseUrl } from "@/api/env";
+import { mockDelay } from "@/api/mock-helpers";
 import type { Match, MatchFilters } from "../types";
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
 const mockMatches: Match[] = [
    {
       id: "m-1",
@@ -382,7 +382,7 @@ const mockMatches: Match[] = [
 // In-memory state (simulates server state in mock mode)
 const mockMatchesState: Match[] = mockMatches.map((m) => ({ ...m }));
 
-// ─── Filtering & sorting helpers ──────────────────────────────────────────────
+
 function applyFilters(matches: Match[], filters: Partial<MatchFilters>): Match[] {
    let result = [...matches];
 
@@ -437,19 +437,19 @@ function applyFilters(matches: Match[], filters: Partial<MatchFilters>): Match[]
    return result;
 }
 
-// ─── Mock API functions ────────────────────────────────────────────────────────
+// Mock API functions
 const mockGetMatches = async (filters: Partial<MatchFilters>): Promise<Match[]> => {
-   await sleep(500);
+   await mockDelay(500);
    return applyFilters(mockMatchesState, filters);
 };
 
 const mockGetMatchById = async (id: string): Promise<Match | null> => {
-   await sleep(250);
+   await mockDelay(250);
    return mockMatchesState.find((m) => m.id === id) ?? null;
 };
 
 const mockToggleSaveMatch = async (id: string): Promise<Match> => {
-   await sleep(300);
+   await mockDelay(300);
    const match = mockMatchesState.find((m) => m.id === id);
    if (!match) throw new Error("Match not found");
    match.saved = !match.saved;
@@ -458,7 +458,7 @@ const mockToggleSaveMatch = async (id: string): Promise<Match> => {
 };
 
 const mockApplyToMatch = async (id: string): Promise<Match> => {
-   await sleep(600);
+   await mockDelay(600);
    const match = mockMatchesState.find((m) => m.id === id);
    if (!match) throw new Error("Match not found");
    match.applied = true;
@@ -471,29 +471,38 @@ const mockApplyToMatch = async (id: string): Promise<Match> => {
 /** Get all matches, filtered and sorted */
 export async function getMatches(filters: Partial<MatchFilters> = {}): Promise<Match[]> {
    if (isMock()) return mockGetMatches(filters);
-   // TODO: GET /api/matches?search=&location=&...
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   const params = new URLSearchParams();
+   if (filters.search) params.set("search", filters.search);
+   if (filters.location) params.set("location", filters.location);
+   if (filters.industry) params.set("industry", filters.industry);
+   if (filters.type) params.set("type", filters.type);
+   if (filters.minScore != null) params.set("minScore", String(filters.minScore));
+   if (filters.status) params.set("status", filters.status);
+   if (filters.sort) params.set("sort", filters.sort);
+   const query = params.toString();
+   return api.request<Match[]>(`${endpoints.matching.list}${query ? `?${query}` : ""}`, { method: "GET" });
 }
 
 /** Get a single match by ID */
 export async function getMatchById(id: string): Promise<Match | null> {
    if (isMock()) return mockGetMatchById(id);
-   // TODO: GET /api/matches/:id
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Match>(endpoints.matching.byId(id), { method: "GET" });
 }
 
 /** Toggle save/unsave a match */
 export async function toggleSaveMatch(id: string): Promise<Match> {
    if (isMock()) return mockToggleSaveMatch(id);
-   // TODO: POST /api/matches/:id/save
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Match>(endpoints.matching.save(id), { method: "POST" });
 }
 
 /** Apply to a match */
 export async function applyToMatch(id: string): Promise<Match> {
    if (isMock()) return mockApplyToMatch(id);
-   // TODO: POST /api/matches/:id/apply
-   throw new Error("Real API not implemented");
+   const api = createApiClient({ baseUrl: getApiBaseUrl() });
+   return api.request<Match>(endpoints.matching.apply(id), { method: "POST" });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

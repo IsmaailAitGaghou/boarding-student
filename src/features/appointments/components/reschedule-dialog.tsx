@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { tokens } from "@/app/theme";
-import { getTimeSlots } from "../api";
+import { getTimeSlotsSync } from "../api";
 import type { ReschedulePayload } from "../types";
 
 interface RescheduleDialogProps {
@@ -41,7 +41,7 @@ export function RescheduleDialog({
       {},
    );
 
-   const timeSlots = date ? getTimeSlots(date, "") : [];
+   const timeSlots = date ? getTimeSlotsSync(date, "") : [];
 
    function validate() {
       const e: typeof errors = {};

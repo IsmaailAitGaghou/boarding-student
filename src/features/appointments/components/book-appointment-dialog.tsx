@@ -22,7 +22,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import { tokens } from "@/app/theme";
-import { getAdvisors, getTimeSlots } from "../api";
+import { getAdvisorsSync, getTimeSlotsSync } from "../api";
 import type { AppointmentType, BookingPayload } from "../types";
 
 interface BookAppointmentDialogProps {
@@ -64,10 +64,10 @@ export function BookAppointmentDialog({
    >({});
 
    // Static lists — derived directly (no state needed for pure sync calls)
-   const advisors = getAdvisors();
+   const advisors = getAdvisorsSync();
    const timeSlots =
       form.date && form.advisorId
-         ? getTimeSlots(form.date, form.advisorId)
+         ? getTimeSlotsSync(form.date, form.advisorId)
          : [];
 
    function set<K extends keyof FormState>(key: K, value: FormState[K]) {
